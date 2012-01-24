@@ -140,7 +140,9 @@
             
             // Enemy unit damages back (if in range)
             if((int)(fabs([unit boardPos].y - [occupyingUnit boardPos].y)) <= [occupyingUnit attackRadius]) {
-                [unit damage:[occupyingUnit AP]];
+                if((int)(fabs([unit boardPos].x - [occupyingUnit boardPos].x)) <= [occupyingUnit attackRadius]-1) {
+                    [unit damage:[occupyingUnit AP]];
+                }
             }
             
             // If enemy unit is dead, remove
@@ -228,7 +230,22 @@
     
     tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y - attackRadius)] intValue];
     tile = (Tile*)[self getChildByTag:tag];
-    [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];        
+    [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
+    
+    // Handle longer distance attackers that can attack across lanes
+    if(attackRadius > 1) {
+        tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x - (attackRadius-1), (int)(boardPos.y)] intValue];
+        tile = (Tile*)[self getChildByTag:tag];
+        if(tile) {
+            [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
+        }
+
+        tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x + (attackRadius-1), (int)(boardPos.y)] intValue];
+        tile = (Tile*)[self getChildByTag:tag];
+        if(tile) {
+            [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
+        }
+    }
 }
 
 - (void)addUnit:(Unit*)unit {
