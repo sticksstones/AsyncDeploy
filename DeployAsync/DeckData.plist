@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>HumanDeck</key>
+	<array>
+		<string>Soldier</string>
+		<string>Soldier</string>
+		<string>Soldier</string>
+		<string>Soldier</string>
+		<string>Scout</string>
+		<string>Scout</string>
+		<string>Scout</string>
+		<string>Scout</string>
+		<string>Wizard</string>
+		<string>Wizard</string>
+		<string>Wizard</string>
+		<string>Wizard</string>
+		<string>Grunt</string>
+		<string>Grunt</string>
+		<string>A. Grunt</string>
+		<string>A. Grunt</string>
+		<string>S. A. Grunt</string>
+		<string>S. A. Grunt</string>
+		<string>Lord</string>
+		<string>Lord</string>
+		<string>S. Soldier</string>
+		<string>S. Soldier</string>
+		<string>S. Soldier</string>
+		<string>S. Soldier</string>
+	</array>
+	<key>YetiDeck</key>
+	<array/>
+</dict>
+</plist>

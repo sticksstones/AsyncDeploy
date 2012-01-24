@@ -44,7 +44,15 @@
 
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	
+	if( interfaceOrientation == UIInterfaceOrientationPortrait ) {
+        [[CCDirector sharedDirector] setDeviceOrientation: kCCDeviceOrientationPortraitUpsideDown];
+    } else if( interfaceOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+        [[CCDirector sharedDirector] setDeviceOrientation: kCCDeviceOrientationPortrait];
+    }
+    
+    return NO;
+    
+    /*
 	//
 	// There are 2 ways to support auto-rotation:
 	//  - The OpenGL / cocos2d way
@@ -95,6 +103,7 @@
 	
 	// Shold not happen
 	return NO;
+     */
 }
 
 //
