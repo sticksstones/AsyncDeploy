@@ -22,7 +22,7 @@
         cards = [NSMutableArray new];
         CCLabelTTF* cardCount = [[CCLabelTTF alloc] initWithString:@"0" fontName:@"Helvetica" fontSize:12.0];
         [self addChild:cardCount z:0 tag:kCardCountLabel];        
-        self.position = CGPointMake(50, 460);
+        self.position = CGPointMake(50, 430);
         
         [self shuffle];
     }
@@ -34,9 +34,7 @@
     [cards removeAllObjects];
     for(NSString* card in deck) {
         [cards addObject:card];
-    }
-    
-    [self shuffle];
+    }    
 }
 
 - (void)updateDeckCountText {
@@ -82,6 +80,12 @@
     cards = newCardOrder;
     }
 }
+
+- (NSArray*)serialize {
+    return [[NSArray alloc] initWithArray:cards];
+}
+
+
 
 
 @end

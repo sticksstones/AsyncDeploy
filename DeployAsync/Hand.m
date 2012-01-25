@@ -31,6 +31,29 @@
     return self;
 }
 
+- (void)setHand:(NSArray*)newCards {
+    for(Card* card in cards) {
+        [self removeChild:card cleanup:YES];
+    }    
+    [cards removeAllObjects];
+    cards = [NSMutableArray new];
+
+    NSString * plistPath = [[NSBundle mainBundle] pathForResource:@"CardData" ofType:@"plist"];
+    NSDictionary* cardsData = [NSDictionary dictionaryWithContentsOfFile:plistPath];
+
+    
+    for(NSString* card in newCards) {
+        NSMutableDictionary* cardData = [[NSMutableDictionary alloc] initWithDictionary:[cardsData objectForKey:card]];
+        [cardData setValue:card forKey:@"name"];
+                
+        Card* cardObj = [[Card alloc] initWithFile:@"CardBackground.png"];
+        
+        [cardObj setParameters:cardData];
+
+        [self addCard:cardObj];
+    }
+}
+
 - (void)readjustCards {
     for(int y = 0; y < [cards count]; ++y) {
         Card* card = [cards objectAtIndex:y];
@@ -57,6 +80,14 @@
     CCLabelTTF* manaLabel = (CCLabelTTF*)[self getChildByTag:kManaLabel];
     [manaLabel setString:[NSString stringWithFormat:@"MANA: %d",mana]];
     manaLabel.position = CGPointMake(self.position.x + 15, 400);
+}
+
+- (NSArray*)serialize {
+    NSMutableArray* cardNames = [NSMutableArray new];
+    for(Card* card in cards) {
+        [cardNames addObject:[[card parameters] valueForKey:@"name"]];
+    }
+    return cardNames;
 }
 
 

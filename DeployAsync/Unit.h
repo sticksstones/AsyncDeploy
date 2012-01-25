@@ -10,6 +10,8 @@
 #import "cocos2d.h"
 
 @interface Unit : CCSprite <CCTargetedTouchDelegate> {
+    NSString* cardName;
+    
     int moveRadius;
     int origMoveRadius;
     
@@ -35,6 +37,7 @@
 @property (nonatomic) int attackRadius;
 @property (nonatomic) CGPoint boardPos;
 @property (nonatomic) int playerNum;
+@property (nonatomic, retain) NSString* cardName;
 
 @property (nonatomic) int HP;
 @property (nonatomic) int maxHP;
@@ -46,5 +49,8 @@
 
 - (void)updateStatsLabel;
 - (void)damage:(int)amount;
+- (void)setupFromCardParams:(NSDictionary*)params;
+- (void)setupUnit:(NSDictionary*)state;
+- (NSDictionary*)serialize;
 
 @end

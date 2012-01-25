@@ -63,18 +63,12 @@
     
     if([[PlayerManager sharedInstance] hasMana:cost]) {
     if([type isEqualToString:@"unit"]) {    
-        int HP = [[parameters valueForKey:@"hp"] intValue];
-        int AP = [[parameters valueForKey:@"ap"] intValue];
-        int moveRadius = [[parameters valueForKey:@"moveRadius"] intValue];
-        int attackRadius = [[parameters valueForKey:@"attackRadius"] intValue];
         
-        Unit* unit = [[Unit alloc] initWithFile:@"Unit.png"];
-        [unit setHP:HP];
-        [unit setMaxHP:HP];
-        [unit setAP:AP];
-        [unit setMoveRadius:moveRadius];
-        [unit setAttackRadius:attackRadius];
+        Unit* unit = [[Unit alloc] initWithFile:@"Unit.png"];            
+
+        [unit setupFromCardParams:[self parameters]];
         [unit setPlayerNum:[[PlayerManager sharedInstance] currentPlayer]];
+        
         Board* board = [[BoardManager sharedInstance] board];
         [board addUnit:unit];
         [board moveUnit:unit toPos:boardPos];

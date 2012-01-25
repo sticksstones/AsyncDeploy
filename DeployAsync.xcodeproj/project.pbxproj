@@ -130,6 +130,14 @@
 		C260E8FB14CDFC3B0083A27D /* HelloWorldLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = C260E8FA14CDFC3B0083A27D /* HelloWorldLayer.m */; };
 		C260E90614CE01930083A27D /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = C260E90514CE01930083A27D /* Tile.m */; };
 		C260E90A14CE03C50083A27D /* Board.m in Sources */ = {isa = PBXBuildFile; fileRef = C260E90914CE03C50083A27D /* Board.m */; };
+		C263FE3514CF3C5C00361898 /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C263FE3414CF3C5C00361898 /* GameKit.framework */; };
+		C263FE3914CF452B00361898 /* GCTurnBasedMatchHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C263FE3814CF452B00361898 /* GCTurnBasedMatchHelper.m */; };
+		C263FE3C14CF55EC00361898 /* MainMenuLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = C263FE3B14CF55EC00361898 /* MainMenuLayer.m */; };
+		C263FE3F14CF67D700361898 /* MatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C263FE3E14CF67D700361898 /* MatchManager.m */; };
+		C263FE4114CF847000361898 /* End Turn Disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = C263FE4014CF847000361898 /* End Turn Disabled.png */; };
+		C263FE4314CF894E00361898 /* Main Menu.png in Resources */ = {isa = PBXBuildFile; fileRef = C263FE4214CF894E00361898 /* Main Menu.png */; };
+		C263FE4514CF9F7400361898 /* End Game.png in Resources */ = {isa = PBXBuildFile; fileRef = C263FE4414CF9F7400361898 /* End Game.png */; };
+		C263FE4714CFE31E00361898 /* Reload.png in Resources */ = {isa = PBXBuildFile; fileRef = C263FE4614CFE31D00361898 /* Reload.png */; };
 		C283EF7B14CE5D6400F3DBE6 /* PlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C283EF7A14CE5D6400F3DBE6 /* PlayerManager.m */; };
 		C283EF7E14CE5EF200F3DBE6 /* End Turn.png in Resources */ = {isa = PBXBuildFile; fileRef = C283EF7D14CE5EF200F3DBE6 /* End Turn.png */; };
 		C283EF8114CE64BF00F3DBE6 /* AttackAvail.png in Resources */ = {isa = PBXBuildFile; fileRef = C283EF7F14CE64BF00F3DBE6 /* AttackAvail.png */; };
@@ -388,6 +396,17 @@
 		C260E90514CE01930083A27D /* Tile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Tile.m; sourceTree = "<group>"; };
 		C260E90814CE03C50083A27D /* Board.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Board.h; sourceTree = "<group>"; };
 		C260E90914CE03C50083A27D /* Board.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Board.m; sourceTree = "<group>"; };
+		C263FE3414CF3C5C00361898 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
+		C263FE3714CF452B00361898 /* GCTurnBasedMatchHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCTurnBasedMatchHelper.h; path = "../../../Desktop/SpinningYarn Finished/GCTurnBasedMatchHelper.h"; sourceTree = "<group>"; };
+		C263FE3814CF452B00361898 /* GCTurnBasedMatchHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCTurnBasedMatchHelper.m; path = "../../../Desktop/SpinningYarn Finished/GCTurnBasedMatchHelper.m"; sourceTree = "<group>"; };
+		C263FE3A14CF55EB00361898 /* MainMenuLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainMenuLayer.h; sourceTree = "<group>"; };
+		C263FE3B14CF55EC00361898 /* MainMenuLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainMenuLayer.m; sourceTree = "<group>"; };
+		C263FE3D14CF67D700361898 /* MatchManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatchManager.h; sourceTree = "<group>"; };
+		C263FE3E14CF67D700361898 /* MatchManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MatchManager.m; sourceTree = "<group>"; };
+		C263FE4014CF847000361898 /* End Turn Disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "End Turn Disabled.png"; sourceTree = "<group>"; };
+		C263FE4214CF894E00361898 /* Main Menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Main Menu.png"; sourceTree = "<group>"; };
+		C263FE4414CF9F7400361898 /* End Game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "End Game.png"; sourceTree = "<group>"; };
+		C263FE4614CFE31D00361898 /* Reload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Reload.png; sourceTree = "<group>"; };
 		C283EF7914CE5D6400F3DBE6 /* PlayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerManager.h; sourceTree = "<group>"; };
 		C283EF7A14CE5D6400F3DBE6 /* PlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerManager.m; sourceTree = "<group>"; };
 		C283EF7D14CE5EF200F3DBE6 /* End Turn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "End Turn.png"; sourceTree = "<group>"; };
@@ -410,6 +429,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C263FE3514CF3C5C00361898 /* GameKit.framework in Frameworks */,
 				C260E79814CDFC360083A27D /* QuartzCore.framework in Frameworks */,
 				C260E79A14CDFC360083A27D /* OpenGLES.framework in Frameworks */,
 				C260E79C14CDFC360083A27D /* OpenAL.framework in Frameworks */,
@@ -436,10 +456,14 @@
 		C233931014CE50F0002CA946 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				C263FE3714CF452B00361898 /* GCTurnBasedMatchHelper.h */,
+				C263FE3814CF452B00361898 /* GCTurnBasedMatchHelper.m */,
 				C233931114CE5100002CA946 /* BoardManager.h */,
 				C233931214CE5100002CA946 /* BoardManager.m */,
 				C283EF7914CE5D6400F3DBE6 /* PlayerManager.h */,
 				C283EF7A14CE5D6400F3DBE6 /* PlayerManager.m */,
+				C263FE3D14CF67D700361898 /* MatchManager.h */,
+				C263FE3E14CF67D700361898 /* MatchManager.m */,
 			);
 			name = Managers;
 			sourceTree = "<group>";
@@ -464,6 +488,7 @@
 		C260E79614CDFC360083A27D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C263FE3414CF3C5C00361898 /* GameKit.framework */,
 				C260E79714CDFC360083A27D /* QuartzCore.framework */,
 				C260E79914CDFC360083A27D /* OpenGLES.framework */,
 				C260E79B14CDFC360083A27D /* OpenAL.framework */,
@@ -489,6 +514,8 @@
 				C260E8F714CDFC3B0083A27D /* RootViewController.m */,
 				C260E8F914CDFC3B0083A27D /* HelloWorldLayer.h */,
 				C260E8FA14CDFC3B0083A27D /* HelloWorldLayer.m */,
+				C263FE3A14CF55EB00361898 /* MainMenuLayer.h */,
+				C263FE3B14CF55EC00361898 /* MainMenuLayer.m */,
 				C260E8FC14CDFC3B0083A27D /* GameConfig.h */,
 				C260E7A814CDFC360083A27D /* Resources */,
 				C260E7BC14CDFC360083A27D /* cocos2d */,
@@ -504,9 +531,13 @@
 		C260E7A814CDFC360083A27D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				C263FE4614CFE31D00361898 /* Reload.png */,
 				C2D5E4BE14CEB48C005FE64F /* DeckData.plist */,
 				C2CC80F914CE6FB70071EA79 /* CardData.plist */,
 				C2D5E4BC14CEA5B7005FE64F /* BoardData.plist */,
+				C263FE4414CF9F7400361898 /* End Game.png */,
+				C263FE4214CF894E00361898 /* Main Menu.png */,
+				C263FE4014CF847000361898 /* End Turn Disabled.png */,
 				C283EF8314CE6CF800F3DBE6 /* CardBackground.png */,
 				C283EF7F14CE64BF00F3DBE6 /* AttackAvail.png */,
 				C283EF8014CE64BF00F3DBE6 /* MoveAvail.png */,
@@ -869,6 +900,10 @@
 				C2CC80FA14CE6FB70071EA79 /* CardData.plist in Resources */,
 				C2D5E4BD14CEA5B7005FE64F /* BoardData.plist in Resources */,
 				C2D5E4BF14CEB48C005FE64F /* DeckData.plist in Resources */,
+				C263FE4114CF847000361898 /* End Turn Disabled.png in Resources */,
+				C263FE4314CF894E00361898 /* Main Menu.png in Resources */,
+				C263FE4514CF9F7400361898 /* End Game.png in Resources */,
+				C263FE4714CFE31E00361898 /* Reload.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -987,6 +1022,9 @@
 				C283EF8814CE6D1D00F3DBE6 /* Card.m in Sources */,
 				C2CC80FE14CE86970071EA79 /* Hand.m in Sources */,
 				C2D5E4BA14CE96D8005FE64F /* Deck.m in Sources */,
+				C263FE3914CF452B00361898 /* GCTurnBasedMatchHelper.m in Sources */,
+				C263FE3C14CF55EC00361898 /* MainMenuLayer.m in Sources */,
+				C263FE3F14CF67D700361898 /* MatchManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

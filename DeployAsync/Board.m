@@ -17,12 +17,16 @@
 #import "Card.h"
 #import "HelloWorldLayer.h"
 
+#import "MatchManager.h"
+
 #define ROWS 9
 #define COLUMNS 3
 #define WIDTH_SPACING 10
 #define HEIGHT_SPACING 0
 
 @implementation Board
+
+@synthesize boardName;
 
 - (id)init
 {
@@ -59,14 +63,57 @@
     return self;
 }
 
+- (NSArray*)getTokensForPlayer:(int)playerNum {
+    NSArray* tokenArray = playerNum == 1 ? p1Tokens : p2Tokens;
+    
+    NSMutableArray* serializedTokens = [NSMutableArray new];
+    
+    for(Unit* unit in tokenArray) {
+        NSDictionary* unitState = [unit serialize];
+        [serializedTokens addObject:unitState];
+    }
+    
+    return serializedTokens;
+}
+
+- (void)setTokens:(NSArray*)tokens forPlayer:(int)playerNum {
+    NSMutableArray* tokenArray = playerNum == 1 ? p1Tokens : p2Tokens;
+    
+    
+    for(Unit* unit in tokenArray) {
+        [self removeChild:unit cleanup:YES];
+    }
+    
+    [tokenArray removeAllObjects];
+    
+    for(NSDictionary* unitState in tokens) {
+        Unit* unit = [[Unit alloc] initWithFile:@"Unit.png"];
+        [unit setupUnit:unitState];
+        [self addUnit:unit];
+        [self moveUnit:unit toPos:unit.boardPos];
+    }
+}
+
 - (void)setupBoard:(NSDictionary*)params {
+    for(int x = 1; x <= COLUMNS; ++x) {
+        for(int y = 1; y <= ROWS; ++y) {
+            int tag = [[NSString stringWithFormat:@"%d%d",x,y] intValue];
+            
+            Tile* tile = (Tile*)[self getChildByTag:tag];
+            if(tile) {
+                [tile setOccupied:NO];
+                [tile setOccupyingUnit:nil];
+            }
+        }
+    }
+
     for(NSString* tileKey in [params allKeys]) {
         int tag = [tileKey intValue];
         NSString* tileProperty = [params valueForKey:tileKey];
         Tile* tile = (Tile*)[self getChildByTag:tag];
-        
+
         if([tileProperty isEqualToString:@"mana"]) {
-        
+            
             [tile setManaValue:1];
         }
         else if([tileProperty isEqualToString:@"double mana"]) {
@@ -147,13 +194,13 @@
             
             // If enemy unit is dead, remove
             if([occupyingUnit HP] <= 0) {
-                [self removeChild:occupyingUnit cleanup:YES];
+                [self removeUnit:occupyingUnit];
                 [tile setOccupyingUnit:nil];
             }
             
             // Do same for attacking unit
             if([unit HP] <= 0) {
-                [self removeChild:unit cleanup:YES];
+                [self removeUnit:unit];
                 CGPoint boardPos = [unit boardPos]; 
                 int tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y)] intValue];
                 Tile* unitTile = (Tile*)[self getChildByTag:tag];
@@ -167,6 +214,14 @@
     
 }
 
+
+- (void)removeUnit:(Unit*)unit {
+    int playerNum = [unit playerNum];
+    NSMutableArray* tokenArray = playerNum == 1 ? p1Tokens : p2Tokens;
+    
+    [tokenArray removeObject:unit];        
+    [self removeChild:unit cleanup:YES];
+}
 - (void)highlightRow:(int)row {
     for(int x = 1; x <= COLUMNS; ++x) {
         int tag = [[NSString stringWithFormat:@"%d%d",x,row] intValue];
@@ -239,7 +294,7 @@
         if(tile) {
             [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
         }
-
+        
         tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x + (attackRadius-1), (int)(boardPos.y)] intValue];
         tile = (Tile*)[self getChildByTag:tag];
         if(tile) {
@@ -267,7 +322,7 @@
             
             Tile* tile = (Tile*)[self getChildByTag:tag];
             if(tile) {
-
+                
                 Unit* occupyingUnit = [tile occupyingUnit];
                 if(occupyingUnit && [occupyingUnit playerNum] == [[PlayerManager sharedInstance] currentPlayer]) {
                     [[PlayerManager sharedInstance] bumpManaMax:[tile manaValue]];
@@ -275,36 +330,42 @@
             }
         }
     }
-
+    
 }
 
 - (void)startTurn:(int)playerNum {
     NSArray* tokenArray = playerNum == 1 ? p1Tokens : p2Tokens;
-
+    
     // Reset board state
-    [self wipeHighlighting];
+    [self wipeHighlighting];    
     [[BoardManager sharedInstance] setSelectedUnit:nil];
     
-    // Reset all units and make them movable/actionable again
+    bool thisPlayer = playerNum == [[PlayerManager sharedInstance] currentPlayer];
+    
+    // Reset all units and make them movable/actionable again (if it's this player's turn)
     for(Unit* unit in tokenArray) {
-        [unit setMoveUsed:NO];
-        [unit setActionUsed:NO];
+        [unit setMoveUsed:!thisPlayer];
+        [unit setActionUsed:!thisPlayer];
     }
     
-    // Setup player
-    [[PlayerManager sharedInstance] setCurrentPlayer:playerNum];
-    [self awardMana];
-    [[PlayerManager sharedInstance] resetMana];
-    
-    // Draw a new card into the hand
-    Hand* hand = [[PlayerManager sharedInstance] hand];        
-    Deck* deck = [[PlayerManager sharedInstance] deck];
-    
-    Card* card = [deck drawCard];
-    if(card) {
-        [hand addCard:card];        
+    // Setup player    
+    if(thisPlayer) {
+        [self awardMana];
+        [[PlayerManager sharedInstance] resetMana];    
+        
+        // Draw a new card into the hand
+        Hand* hand = [[PlayerManager sharedInstance] hand];        
+        Deck* deck = [[PlayerManager sharedInstance] deck];
+        
+        Card* card = [deck drawCard];
+        if(card) {
+            [hand addCard:card];        
+        }
     }
-    
+    else {
+        // Fizzle mana
+        [[PlayerManager sharedInstance] setMana:0];
+    }
 }
 
 - (void)endTurn {
@@ -317,8 +378,50 @@
         [unit setActionUsed:YES];
     }    
     
+    // Send game-state
+    NSData* gameState = [[MatchManager sharedInstance] serialize];
+    
+    GKTurnBasedMatch *currentMatch = [[GCTurnBasedMatchHelper sharedInstance] currentMatch];
+    
+    NSUInteger currentIndex = [currentMatch.participants indexOfObject:currentMatch.currentParticipant];
+    GKTurnBasedParticipant *nextParticipant;
+    
+    NSUInteger nextIndex = (currentIndex + 1) % [currentMatch.participants count];
+    nextParticipant = [currentMatch.participants objectAtIndex:nextIndex];
+    
+    for (int i = 0; i < [currentMatch.participants count]; i++) {
+        nextParticipant = [currentMatch.participants objectAtIndex:((currentIndex + 1 + i) % [currentMatch.participants count ])];
+        if (nextParticipant.matchOutcome != GKTurnBasedMatchOutcomeQuit) {
+            NSLog(@"isnt' quit %@", nextParticipant);
+            break;
+        } else {
+            NSLog(@"nex part %@", nextParticipant);
+        }
+    }
+    
+    //        if ([data length] > 3800) {
+    //            for (GKTurnBasedParticipant *part in currentMatch.participants) {
+    //                part.matchOutcome = GKTurnBasedMatchOutcomeTied;
+    //            }
+    //            [currentMatch endMatchInTurnWithMatchData:data completionHandler:^(NSError *error) {
+    //                if (error) {
+    //                    NSLog(@"%@", error);
+    //                }
+    //            }];
+    //            statusLabel.text = @"Game has ended";
+    //        } else {
+    
+    [currentMatch endTurnWithNextParticipant:nextParticipant matchData:gameState completionHandler:^(NSError *error) {
+        if (error) {
+            NSLog(@"%@", error);
+        } else {
+        }
+    }];
+    NSLog(@"Send Turn, %@, %@", gameState, nextParticipant);
+    
+    
     // Start a new turn for the other player
-    [self startTurn:-1*playerNum];
+    //[self startTurn:-1*playerNum];
 }
 
 - (CGPoint)getBoardPosForTouch:(UITouch*)touch {

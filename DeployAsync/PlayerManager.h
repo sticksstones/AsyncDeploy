@@ -28,6 +28,13 @@
 @property (nonatomic) int mana;
 @property (nonatomic) int manaMax;
 
+@property (readonly) Deck* p1Deck;
+@property (readonly) Deck* p2Deck;
+
+@property (readonly) Hand* p1Hand;
+@property (readonly) Hand* p2Hand;
+
+
 @property (readonly) Hand* hand;
 @property (readonly) Deck* deck;
 

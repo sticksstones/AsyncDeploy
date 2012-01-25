@@ -20,5 +20,7 @@
 - (Card*)drawCard;
 - (void)addCard:(NSString*)card;
 - (void)shuffle;
+- (NSArray*)serialize;
+- (void)updateDeckCountText;
 
 @end

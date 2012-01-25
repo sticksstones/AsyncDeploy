@@ -17,8 +17,10 @@
 @property (nonatomic, retain) NSMutableArray* cards;
 
 - (void)readjustCards;
+- (void)setHand:(NSArray*)cards;
 - (void)addCard:(Card*)card;
 - (void)removeCard:(Card*)card;
 - (void)updateManaLabel;
+- (NSArray*)serialize;
 
 @end

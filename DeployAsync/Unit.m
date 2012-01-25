@@ -19,7 +19,7 @@
 @implementation Unit
 
 @synthesize moveRadius, attackRadius, boardPos, playerNum, highlighted, moveUsed, actionUsed;
-@synthesize HP, maxHP, AP;
+@synthesize HP, maxHP, AP, cardName;
 
 - (id)init
 {
@@ -159,6 +159,57 @@
 
 - (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event {	
     CGPoint touchPoint = [touch locationInView:[touch view]];
+}
+
+- (void)setupFromCardParams:(NSDictionary*)params {
+    int _HP = [[params valueForKey:@"hp"] intValue];
+    int _AP = [[params valueForKey:@"ap"] intValue];
+    int _moveRadius = [[params valueForKey:@"moveRadius"] intValue];
+    int _attackRadius = [[params valueForKey:@"attackRadius"] intValue];
+    
+    [self setCardName:[params valueForKey:@"name"]];    
+    [self setHP:_HP];
+    [self setMaxHP:_HP];
+    [self setAP:_AP];
+    [self setMoveRadius:_moveRadius];
+    [self setAttackRadius:_attackRadius];
+    
+}
+
+
+- (void)setupUnit:(NSDictionary*)state {
+    NSString* card = [state valueForKey:@"cardName"];
+    
+    
+    NSString * plistPath = [[NSBundle mainBundle] pathForResource:@"CardData" ofType:@"plist"];
+    NSDictionary* cardsData = [NSDictionary dictionaryWithContentsOfFile:plistPath];
+    NSMutableDictionary* cardData = [[NSMutableDictionary alloc] initWithDictionary:[cardsData objectForKey:card]];
+    [cardData setValue:card forKey:@"name"];
+    
+    [self setupFromCardParams:cardData];
+
+    
+    [self setPlayerNum:[[state valueForKey:@"owner"] intValue]];
+    [self setHP:[[state valueForKey:@"HP"] intValue]];
+    
+    int boardX = [[state valueForKey:@"BOARD_X"] intValue];
+    int boardY = [[state valueForKey:@"BOARD_Y"] intValue];
+    
+    [self setBoardPos:CGPointMake(boardX, boardY)];
+    
+}
+
+
+
+- (NSDictionary*)serialize {
+    NSMutableDictionary* serialized = [NSMutableDictionary new];
+    [serialized setValue:cardName forKey:@"cardName"];
+    [serialized setValue:[NSNumber numberWithInt:HP] forKey:@"HP"];
+    [serialized setValue:[NSNumber numberWithInt:boardPos.x] forKey:@"BOARD_X"];
+    [serialized setValue:[NSNumber numberWithInt:boardPos.y] forKey:@"BOARD_Y"]; 
+    [serialized setValue:[NSNumber numberWithInt:[self playerNum]] forKey:@"owner"]; 
+    
+    return serialized;
 }
 
 @end

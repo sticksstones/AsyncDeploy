@@ -13,10 +13,16 @@
 @interface Board : CCNode {
     NSMutableArray* p1Tokens;
     NSMutableArray* p2Tokens;
+    NSString* boardName;
 }
 
+@property (nonatomic, retain) NSString* boardName;
+
+- (NSArray*)getTokensForPlayer:(int)playerNum;
+- (void)setTokens:(NSArray*)tokens forPlayer:(int)playerNum;
 - (void)setupBoard:(NSDictionary*)params;
 - (void)addUnit:(Unit*)unit;
+- (void)removeUnit:(Unit*)unit;
 - (void)moveUnit:(Unit*)unit toPos:(CGPoint)boardPos;
 - (void)unit:(Unit*)unit attacksPos:(CGPoint)boardPos;
 - (void)highlightSpawnPoints:(int)playerNum;

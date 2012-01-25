@@ -12,10 +12,12 @@
 #import "GameConfig.h"
 #import "HelloWorldLayer.h"
 #import "RootViewController.h"
+#import "GCTurnBasedMatchHelper.h"
+#import "MainMenuLayer.h"
 
 @implementation AppDelegate
 
-@synthesize window;
+@synthesize window, viewController;
 
 - (void) removeStartupFlicker
 {
@@ -110,7 +112,9 @@
 	[self removeStartupFlicker];
 	
 	// Run the intro Scene
-	[[CCDirector sharedDirector] runWithScene: [HelloWorldLayer scene]];
+	[[CCDirector sharedDirector] runWithScene: [MainMenuLayer scene]];
+    [[GCTurnBasedMatchHelper sharedInstance] authenticateLocalUser];
+
 }
 
 

@@ -16,6 +16,7 @@
 @implementation PlayerManager
 
 @synthesize currentPlayer, hand, mana, manaMax;
+@synthesize p1Deck,p2Deck,p1Hand,p2Hand;
 
 static PlayerManager *sharedInstance = nil;
 
