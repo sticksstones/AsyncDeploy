@@ -56,6 +56,13 @@
     self.color = _attackable ? ccRED : origColor;
 }
 
+- (void)reset {
+    [self setOccupied:NO];
+    [self setAttackable:NO];
+    [self setOccupyingUnit:nil];
+    [self setHighlighted:NO];
+}
+
 
 - (void)setHighlighted:(_Bool)_highlighted {
     highlighted = _highlighted;

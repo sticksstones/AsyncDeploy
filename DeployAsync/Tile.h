@@ -27,6 +27,7 @@
 @property (nonatomic, retain) Unit* occupyingUnit;
 @property (nonatomic) int manaValue;
 
+- (void)reset;
 - (BOOL)containsTouchLocation:(UITouch *)touch;
 
 @end

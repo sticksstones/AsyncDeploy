@@ -28,6 +28,7 @@
 - (void)highlightSpawnPoints:(int)playerNum;
 - (void)highlightMovePoints:(Unit*)unit;
 - (void)highlightAttackPoints:(Unit*)unit;
+- (void)resetTiles;
 - (void)wipeHighlighting;
 - (void)startTurn:(int)playerNum;
 - (void)endTurn;

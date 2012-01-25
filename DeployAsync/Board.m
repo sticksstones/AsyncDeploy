@@ -94,18 +94,23 @@
     }
 }
 
-- (void)setupBoard:(NSDictionary*)params {
+- (void)resetTiles {
     for(int x = 1; x <= COLUMNS; ++x) {
         for(int y = 1; y <= ROWS; ++y) {
             int tag = [[NSString stringWithFormat:@"%d%d",x,y] intValue];
             
             Tile* tile = (Tile*)[self getChildByTag:tag];
             if(tile) {
-                [tile setOccupied:NO];
-                [tile setOccupyingUnit:nil];
+                [tile reset];
             }
         }
     }
+    
+}
+
+- (void)setupBoard:(NSDictionary*)params {
+    
+    [self resetTiles];
 
     for(NSString* tileKey in [params allKeys]) {
         int tag = [tileKey intValue];
@@ -155,17 +160,11 @@
     tile = (Tile*)[self getChildByTag:tag];
     [tile setOccupied:YES];
     [tile setOccupyingUnit:unit];
-    
-    //    CGPoint tileWorldCoords = [tile convertToWorldSpace:tile.position];
-    
-    //    [unit setPosition:tileWorldCoords];
-    //    [unit setPosition:CGPointMake(tileWorldCoords.x, 
-    //                                  ((CGSize)[[CCDirector sharedDirector] displaySizeInPixels]).height - tileWorldCoords.y)];
+
     CCActionEase* moveToTile = [CCActionEase actionWithAction:[CCMoveTo actionWithDuration:1.0 position:tile.position]];
     [unit runAction:moveToTile];
     
     [self wipeHighlighting];
-    //[unit setPosition:tile.position];
     
 }
 
@@ -398,18 +397,6 @@
             NSLog(@"nex part %@", nextParticipant);
         }
     }
-    
-    //        if ([data length] > 3800) {
-    //            for (GKTurnBasedParticipant *part in currentMatch.participants) {
-    //                part.matchOutcome = GKTurnBasedMatchOutcomeTied;
-    //            }
-    //            [currentMatch endMatchInTurnWithMatchData:data completionHandler:^(NSError *error) {
-    //                if (error) {
-    //                    NSLog(@"%@", error);
-    //                }
-    //            }];
-    //            statusLabel.text = @"Game has ended";
-    //        } else {
     
     [currentMatch endTurnWithNextParticipant:nextParticipant matchData:gameState completionHandler:^(NSError *error) {
         if (error) {
