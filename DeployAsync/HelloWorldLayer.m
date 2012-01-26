@@ -43,7 +43,9 @@
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super init])) {
-        [GCTurnBasedMatchHelper sharedInstance].delegate = self;        
+        [GCTurnBasedMatchHelper sharedInstance].delegate = self;  
+        //[self registerWithTouchDispatcher];
+        self.isTouchEnabled = YES;
 	}
 	return self;
 }
@@ -79,8 +81,9 @@
     
     // Setup End Turn Button
     CCMenuItem* menuItem = [CCMenuItemImage itemFromNormalImage:@"End Turn.png" selectedImage:nil disabledImage:@"End Turn Disabled.png" target:self selector:@selector(endTurn:)];
-    CCMenuItem* menuItem2 = [CCMenuItemImage itemFromNormalImage:@"Reload.png" selectedImage:nil disabledImage:nil target:self selector:@selector(reloadGame:)];
+    CCMenuItem* menuItem2 = [CCMenuItemImage itemFromNormalImage:@"Reload.png" selectedImage:nil disabledImage:@"Disabled Reload.png" target:self selector:@selector(reloadGame:)];
     submitTurn = menuItem;
+    reloadButton = menuItem2;
     menuItem2.position = CGPointMake(50,0);
     CCMenu* menu = [CCMenu menuWithItems:menuItem,menuItem2, nil];
     menu.position = CGPointMake(40, 25);
@@ -98,15 +101,22 @@
 
 -(void)mainMenu:(id)sender {
     [self reset];
-    [[CCDirector sharedDirector] replaceScene:[MainMenuLayer scene]];
+    UIViewController* tempVC=[[UIViewController alloc] init];    
+    [[[CCDirector sharedDirector] openGLView] addSubview:tempVC.view];
+    [[GCTurnBasedMatchHelper sharedInstance] 
+     findMatchWithMinPlayers:2 maxPlayers:2 viewController:tempVC];
+
+    //[[CCDirector sharedDirector] replaceScene:[MainMenuLayer scene]];
 }
 -(void)endTurn:(id)sender {
+
 
     // Update the board
     [[[BoardManager sharedInstance] board] endTurn];    
     
     [[PlayerManager sharedInstance] setMana:0];
     submitTurn.isEnabled = NO;
+    reloadButton.isEnabled = NO;
 
 }
 
@@ -126,6 +136,8 @@
 }
 
 -(void)reloadGame:(id)sender {
+    //[self reset];
+    [[MatchManager sharedInstance] setSkipRecap:NO];
     [self setupState:[[GCTurnBasedMatchHelper sharedInstance] currentMatch]];
     //[[MatchManager sharedInstance] loadState:[[MatchManager sharedInstance] cachedMatchData]];
 }
@@ -177,6 +189,7 @@
     
     submitTurn.isEnabled = NO;
 
+
 }
 - (void)takeTurn:(GKTurnBasedMatch *)match {
     [self reset];
@@ -213,6 +226,16 @@
     [self loadTurn];
     submitTurn.isEnabled = YES;
 
+}
+
+- (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if([[MatchManager sharedInstance] showingRecap]) {
+        //[self reset];
+        [[MatchManager sharedInstance] setSkipRecap:YES];
+        [self setupState:[[GCTurnBasedMatchHelper sharedInstance] currentMatch]];
+        submitTurn.isEnabled = [[PlayerManager sharedInstance] thisPlayersTurn];
+    }
+    
 }
 
 

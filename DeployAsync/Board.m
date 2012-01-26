@@ -90,6 +90,8 @@
         Unit* unit = [[Unit alloc] initWithFile:@"Unit.png"];
         [unit setupUnit:unitState];
         [self addUnit:unit];
+        Tile* tile = (Tile*)[self getChildByTag:(int)(unit.boardPos.x*10 + unit.boardPos.y)];
+        unit.position = CGPointMake(tile.position.x, tile.position.y);
         [self moveUnit:unit toPos:unit.boardPos];
     }
 }
@@ -146,7 +148,7 @@
     if([self moveUnit:unit toPos:boardPos]) {
         // Log the event
         // Format: move src_tile dest_tile    
-        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"move %d%d %d%d", (int)(origBoardPos.x),(int)(origBoardPos.y),(int)boardPos.x,(int)boardPos.y]];            
+        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"move|%d%d|%d%d", (int)(origBoardPos.x),(int)(origBoardPos.y),(int)boardPos.x,(int)boardPos.y]];            
     }
 }
 
@@ -171,6 +173,8 @@
     [tile setOccupyingUnit:unit];
 
     CCActionEase* moveToTile = [CCActionEase actionWithAction:[CCMoveTo actionWithDuration:1.0 position:tile.position]];
+    
+    //CCSequence* seq = [CCSequence actions:moveToTile,[CCCallFunc actionWithTarget:[MatchManager sharedInstance] selector:@selector(popMove:)],nil];
     [unit runAction:moveToTile];
     
     [self wipeHighlighting];
@@ -182,7 +186,7 @@
     if([self unit:unit attacksPos:boardPos]) {
         // Log the event
         // Format: atk src_unit_pos dest_unit_pos
-        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"atk %d%d %d%d", (int)(unit.boardPos.x),(int)(unit.boardPos.y),(int)boardPos.x,(int)boardPos.y]];        
+        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"atk|%d%d|%d%d", (int)(unit.boardPos.x),(int)(unit.boardPos.y),(int)boardPos.x,(int)boardPos.y]];        
     }
 }
 
@@ -227,6 +231,12 @@
             
             // Wipe the board of highlights
             [self wipeHighlighting];        
+            
+            
+            
+//            CCSequence* seq = [CCSequence actions:[CCDelayTime actionWithDuration:2.0], [CCCallFunc actionWithTarget:[MatchManager sharedInstance] selector:@selector(popMove:)],nil];
+//            [self runAction:seq];
+//            
             return YES;
         }
     }
@@ -335,6 +345,15 @@
     [self addChild:unit];
 }
 
+- (void)setUnit:(Unit*)unit AtBoardPos:(CGPoint)boardPos {
+    int tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x,(int)boardPos.y] intValue];
+    
+    Tile* tile = (Tile*)[self getChildByTag:tag];
+    if(tile) {
+        unit.position = tile.position;
+    }
+}
+
 - (Unit*)getUnitAtBoardPos:(CGPoint)boardPos {
     int tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x,(int)boardPos.y] intValue];
     
@@ -372,7 +391,7 @@
     [self wipeHighlighting];    
     [[BoardManager sharedInstance] setSelectedUnit:nil];
     
-    bool thisPlayer = playerNum == [[PlayerManager sharedInstance] currentPlayer];
+    bool thisPlayer = [[PlayerManager sharedInstance] thisPlayersTurn];
     
     // Reset all units and make them movable/actionable again (if it's this player's turn)
     for(Unit* unit in tokenArray) {

@@ -23,6 +23,7 @@
 - (void)setupBoard:(NSDictionary*)params;
 - (void)addUnit:(Unit*)unit;
 - (Unit*)getUnitAtBoardPos:(CGPoint)boardPos;
+- (void)setUnit:(Unit*)unit AtBoardPos:(CGPoint)boardPos;
 - (void)removeUnit:(Unit*)unit;
 - (void)LOGGEDmoveUnit:(Unit*)unit toPos:(CGPoint)boardPos;
 - (bool)moveUnit:(Unit*)unit toPos:(CGPoint)boardPos;

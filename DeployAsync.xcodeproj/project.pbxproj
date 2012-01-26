@@ -149,6 +149,8 @@
 		C2D5E4BA14CE96D8005FE64F /* Deck.m in Sources */ = {isa = PBXBuildFile; fileRef = C2D5E4B914CE96D8005FE64F /* Deck.m */; };
 		C2D5E4BD14CEA5B7005FE64F /* BoardData.plist in Resources */ = {isa = PBXBuildFile; fileRef = C2D5E4BC14CEA5B7005FE64F /* BoardData.plist */; };
 		C2D5E4BF14CEB48C005FE64F /* DeckData.plist in Resources */ = {isa = PBXBuildFile; fileRef = C2D5E4BE14CEB48C005FE64F /* DeckData.plist */; };
+		C2EEC5C414D1081C0038C5F7 /* RecapLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = C2EEC5C314D1081B0038C5F7 /* RecapLabel.m */; };
+		C2EEC5CA14D174F80038C5F7 /* Disabled Reload.png in Resources */ = {isa = PBXBuildFile; fileRef = C2EEC5C914D174F80038C5F7 /* Disabled Reload.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -422,6 +424,9 @@
 		C2D5E4B914CE96D8005FE64F /* Deck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Deck.m; sourceTree = "<group>"; };
 		C2D5E4BC14CEA5B7005FE64F /* BoardData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = BoardData.plist; sourceTree = "<group>"; };
 		C2D5E4BE14CEB48C005FE64F /* DeckData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = DeckData.plist; sourceTree = "<group>"; };
+		C2EEC5C214D1081A0038C5F7 /* RecapLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecapLabel.h; sourceTree = "<group>"; };
+		C2EEC5C314D1081B0038C5F7 /* RecapLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecapLabel.m; sourceTree = "<group>"; };
+		C2EEC5C914D174F80038C5F7 /* Disabled Reload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Disabled Reload.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -524,6 +529,8 @@
 				C260E8C514CDFC3A0083A27D /* FontLabel */,
 				C260E8D614CDFC3A0083A27D /* TouchJSON */,
 				C260E8EF14CDFC3B0083A27D /* Supporting Files */,
+				C2EEC5C214D1081A0038C5F7 /* RecapLabel.h */,
+				C2EEC5C314D1081B0038C5F7 /* RecapLabel.m */,
 			);
 			path = DeployAsync;
 			sourceTree = "<group>";
@@ -531,6 +538,7 @@
 		C260E7A814CDFC360083A27D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				C2EEC5C914D174F80038C5F7 /* Disabled Reload.png */,
 				C263FE4614CFE31D00361898 /* Reload.png */,
 				C2D5E4BE14CEB48C005FE64F /* DeckData.plist */,
 				C2CC80F914CE6FB70071EA79 /* CardData.plist */,
@@ -904,6 +912,7 @@
 				C263FE4314CF894E00361898 /* Main Menu.png in Resources */,
 				C263FE4514CF9F7400361898 /* End Game.png in Resources */,
 				C263FE4714CFE31E00361898 /* Reload.png in Resources */,
+				C2EEC5CA14D174F80038C5F7 /* Disabled Reload.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1025,6 +1034,7 @@
 				C263FE3914CF452B00361898 /* GCTurnBasedMatchHelper.m in Sources */,
 				C263FE3C14CF55EC00361898 /* MainMenuLayer.m in Sources */,
 				C263FE3F14CF67D700361898 /* MatchManager.m in Sources */,
+				C2EEC5C414D1081C0038C5F7 /* RecapLabel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

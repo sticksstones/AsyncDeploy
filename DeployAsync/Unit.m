@@ -9,6 +9,7 @@
 #import "Unit.h"
 #import "BoardManager.h"
 #import "PlayerManager.h"
+#import "MatchManager.h"
 #import "Board.h"
 
 #define kStatsLabel 100
@@ -144,10 +145,12 @@
 {
 	if (![self containsTouchLocation:touch] ) return NO;
     
-    if(playerNum == [[PlayerManager sharedInstance] currentPlayer]) {
+    if([[PlayerManager sharedInstance] thisPlayersTurn] && playerNum == [[PlayerManager sharedInstance] currentPlayer] && ![[MatchManager sharedInstance] showingRecap]) {
         [[BoardManager sharedInstance] setSelectedUnit:self];
+        return YES;
     }
-	return YES;
+    return NO;
+
 }
 
 - (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event {

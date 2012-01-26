@@ -14,11 +14,14 @@
 #import "Card.h"
 #import "Deck.h"
 #import "Hand.h"
+#import "Unit.h"
+#import "Tile.h"
 #import "HelloWorldLayer.h"
+#import "RecapLabel.h"
 
 @implementation MatchManager
 
-@synthesize currentMatch, cachedMatchData;
+@synthesize currentMatch, cachedMatchData, moveList, showingRecap, skipRecap;
 
 static MatchManager *sharedInstance = nil;
 
@@ -42,53 +45,154 @@ static MatchManager *sharedInstance = nil;
     if (self) {
         currentMatch = [NSMutableDictionary new];
         moveList = [NSMutableArray new];
+        skipRecap = NO;
+        showingRecap = NO;
     }
     
     return self;
 }
 
--(void)applyMoveList {
-    for(NSString* move in moveList) {
-        // do the move
-        NSArray* moveComponents = [move componentsSeparatedByString:@" "];
-        if([[moveComponents objectAtIndex:0] isEqualToString:@"move"]) {
-            int srcTileTag = [[moveComponents objectAtIndex:1] intValue];
-            int destTileTag = [[moveComponents objectAtIndex:2] intValue];
+- (void)performMove:(NSString*)move {
+    NSArray* moveComponents = [move componentsSeparatedByString:@"|"];
 
-            Unit* unit = [[[BoardManager sharedInstance] board] getUnitAtBoardPos:CGPointMake(srcTileTag/10, srcTileTag%10)];
-            
-            [[[BoardManager sharedInstance] board] moveUnit:unit toPos:CGPointMake(destTileTag/10, destTileTag%10)];
-        }
-        else if([[moveComponents objectAtIndex:0] isEqualToString:@"atk"]) {
-            int srcTileTag = [[moveComponents objectAtIndex:1] intValue];
-            int destTileTag = [[moveComponents objectAtIndex:2] intValue];
-            
-            Unit* unit = [[[BoardManager sharedInstance] board] getUnitAtBoardPos:CGPointMake(srcTileTag/10, srcTileTag%10)];
-            [[[BoardManager sharedInstance] board] unit:unit attacksPos:CGPointMake(destTileTag/10, destTileTag%10)];
-            
-        }
-        else if([[moveComponents objectAtIndex:0] isEqualToString:@"play"]) {
-            int playerNum = [[moveComponents objectAtIndex:1] intValue];
-            NSString* cardName = [moveComponents objectAtIndex:2];
-            int destTileTag = [[moveComponents objectAtIndex:3] intValue];
-            
-            NSString * plistPath = [[NSBundle mainBundle] pathForResource:@"CardData" ofType:@"plist"];
-            NSDictionary* cardsData = [NSDictionary dictionaryWithContentsOfFile:plistPath];
-            NSMutableDictionary* cardData = [[NSMutableDictionary alloc] initWithDictionary:[cardsData objectForKey:cardName]];
-            [cardData setValue:cardName forKey:@"name"];
+    RecapLabel* actionLabel = (RecapLabel*)[[[BoardManager sharedInstance] board] getChildByTag:666];
+    
+    if(!actionLabel) {
+        actionLabel = [[RecapLabel alloc] initWithString:@"NEW UNIT!" fontName:@"Helvetica" fontSize:12.0];
+        [actionLabel setColor:ccGREEN];
+        
+            [[[BoardManager sharedInstance] board] addChild:actionLabel z:0 tag:666];
+        actionLabel.position = CGPointMake(200,200);        
+    }
 
-            
-            Card* card = [[Card alloc] initWithFile:@"CardBackground.png"];
-            [card setParameters:cardData];
-            
-            [card playCardOnPos:CGPointMake(destTileTag/10, destTileTag%10) playerNum:playerNum];
+    if(skipRecap) {
+        [actionLabel setOpacity:0];
+    }
+    else {
+        [actionLabel setOpacity:255];
+        [actionLabel setScale:1.0];
+    }
+    CCSequence* seq = [CCSequence actions:[CCFadeOut actionWithDuration:2.0],[CCCallFuncN actionWithTarget:self selector:@selector(popMove:)],nil];
+    CCSequence* seq2 = [CCSequence actions:[CCScaleTo actionWithDuration:2.0 scale:2.5],nil];
+    
+    if([[moveComponents objectAtIndex:0] isEqualToString:@"move"]) {
+        int srcTileTag = [[moveComponents objectAtIndex:1] intValue];
+        int destTileTag = [[moveComponents objectAtIndex:2] intValue];
+        
+        Unit* unit = [[[BoardManager sharedInstance] board] getUnitAtBoardPos:CGPointMake(srcTileTag/10, srcTileTag%10)];
+        [[[BoardManager sharedInstance] board] setUnit:unit AtBoardPos:CGPointMake(srcTileTag/10, srcTileTag%10)];
+        [[[BoardManager sharedInstance] board] moveUnit:unit toPos:CGPointMake(destTileTag/10, destTileTag%10)];
+        Tile* tile = (Tile*)[[[BoardManager sharedInstance] board] getChildByTag:destTileTag];
+
+        if(skipRecap) { // "Fast forward" the unit movement
+            [unit stopAllActions];
+            [unit setPosition:CGPointMake(tile.position.x, tile.position.y)];
         }
         
+        actionLabel.string = @"MOVE";
+        actionLabel.color = ccWHITE;
+        actionLabel.position = CGPointMake(tile.position.x, tile.position.y);
+        
+        
+    }
+    else if([[moveComponents objectAtIndex:0] isEqualToString:@"atk"]) {
+        int srcTileTag = [[moveComponents objectAtIndex:1] intValue];
+        int destTileTag = [[moveComponents objectAtIndex:2] intValue];
+        
+        Unit* unit = [[[BoardManager sharedInstance] board] getUnitAtBoardPos:CGPointMake(srcTileTag/10, srcTileTag%10)];
+        [[[BoardManager sharedInstance] board] unit:unit attacksPos:CGPointMake(destTileTag/10, destTileTag%10)];
+
+        actionLabel.string = @"ATTACK";
+        actionLabel.color = ccWHITE;
+        actionLabel.position = CGPointMake(unit.position.x, unit.position.y);
+
+    }
+    else if([[moveComponents objectAtIndex:0] isEqualToString:@"play"]) {
+        int playerNum = [[moveComponents objectAtIndex:1] intValue];
+        NSString* cardName = [moveComponents objectAtIndex:2];
+        int destTileTag = [[moveComponents objectAtIndex:3] intValue];
+        
+        NSString * plistPath = [[NSBundle mainBundle] pathForResource:@"CardData" ofType:@"plist"];
+        NSDictionary* cardsData = [NSDictionary dictionaryWithContentsOfFile:plistPath];
+        NSMutableDictionary* cardData = [[NSMutableDictionary alloc] initWithDictionary:[cardsData objectForKey:cardName]];
+        [cardData setValue:cardName forKey:@"name"];
+        
+        
+        Card* card = [[Card alloc] initWithFile:@"CardBackground.png"];
+        [card setParameters:cardData];
+        
+        [card playCardOnPos:CGPointMake(destTileTag/10, destTileTag%10) playerNum:playerNum];
+        
+        Tile* tile = (Tile*)[[[BoardManager sharedInstance] board] getChildByTag:destTileTag];
+        
+        actionLabel.string = [NSString stringWithFormat:@"%@", [cardName uppercaseString]];
+        actionLabel.color = ccWHITE;
+        actionLabel.position = CGPointMake(tile.position.x, tile.position.y);
+    
     }
     
-    moveList = [NSMutableArray new];
+    if(skipRecap) {
+        [self popMove:nil];
+    }
+    else {
+        [actionLabel runAction:seq];
+        [actionLabel runAction:seq2];        
+    }
+
+}
+
+-(void)popMove:(id)sender {
     
-    cachedMatchData = [self serialize];
+    if([moveList count] > 0) {
+        NSString* move = [moveList objectAtIndex:0];
+        [moveList removeObjectAtIndex:0];
+        
+        [self performMove:move];
+
+    }
+    else {
+        [self finishMoveList];
+    }
+    
+}
+
+- (void)finishMoveList {
+    moveList = [NSMutableArray new];    
+    cachedMatchData = [self serialize];    
+    showingRecap = NO;   
+    
+    RecapLabel* actionLabel = (RecapLabel*)[[[BoardManager sharedInstance] board] getChildByTag:666];
+    if(!actionLabel) {
+        actionLabel = [[RecapLabel alloc] initWithString:@"NEW UNIT!" fontName:@"Helvetica" fontSize:12.0];        
+        [[[BoardManager sharedInstance] board] addChild:actionLabel z:0 tag:666];
+    }
+
+    [actionLabel stopAllActions];
+    [actionLabel setOpacity:255];
+    if([[PlayerManager sharedInstance] thisPlayersTurn]) {
+        [actionLabel setString:@"YOUR TURN"];
+    }
+    
+    else {
+        [actionLabel setString:@"THEIR TURN"];
+    }
+    
+    [actionLabel setColor:ccWHITE];
+    [actionLabel setScale:2.0];
+    [actionLabel setPosition:CGPointMake([[[BoardManager sharedInstance] board] contentSize].width/2,[[[BoardManager sharedInstance] board] contentSize].height/2)];
+    [actionLabel runAction:[CCSequence actions:[CCFadeOut actionWithDuration:2.0], [CCCallFunc actionWithTarget:actionLabel selector:@selector(kill)],nil]];
+    //[[[BoardManager sharedInstance] board] removeChildByTag:666 cleanup:YES];
+}
+
+-(void)applyMoveList {
+    showingRecap = YES;
+    RecapLabel* actionLabel = (RecapLabel*)[[[BoardManager sharedInstance] board] getChildByTag:666];
+
+    if(actionLabel) {
+        [actionLabel stopAllActions];
+    }
+    [self popMove:nil];
+    
 }
 
 -(void)loadState:(NSData*)matchData {
@@ -103,7 +207,7 @@ static MatchManager *sharedInstance = nil;
     NSArray* p2Tokens = [myDictionary objectForKey:@"p2Tokens"];
     NSArray* newMoveList = [myDictionary objectForKey:@"moveList"];
     
-    moveList = [NSMutableArray arrayWithArray:newMoveList];
+    moveList = [[NSMutableArray alloc] initWithArray:newMoveList];
     NSString * plistPath = [[NSBundle mainBundle] pathForResource:@"BoardData" ofType:@"plist"];
     NSDictionary* boardsData = [NSDictionary dictionaryWithContentsOfFile:plistPath];
     NSMutableDictionary* boardData = [[NSMutableDictionary alloc] initWithDictionary:[boardsData objectForKey:[myDictionary valueForKey:@"Board"]]];
@@ -159,11 +263,6 @@ static MatchManager *sharedInstance = nil;
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     [archiver encodeObject:currentMatch forKey:@"Some Key Value"];
     [archiver finishEncoding];
-
-    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-    NSDictionary *myDictionary = [[unarchiver decodeObjectForKey:@"Some Key Value"] retain];
-    [unarchiver finishDecoding];
-
     
     return data;
 }

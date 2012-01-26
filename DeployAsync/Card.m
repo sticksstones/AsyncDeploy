@@ -12,7 +12,7 @@
 #import "BoardManager.h"
 #import "MatchManager.h"
 #import "Board.h"
-
+#import "Tile.h"
 #import "Hand.h"
 
 @implementation Card
@@ -62,7 +62,7 @@
     if([self playCardOnPos:boardPos playerNum:playerNum]) {
         // Log the event
         // Format: play cardname dest_tile        
-        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"play %d %@ %d%d", playerNum, [parameters valueForKey:@"name"], (int)boardPos.x, (int)boardPos.y]];
+        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"play|%d|%@|%d%d", playerNum, [parameters valueForKey:@"name"], (int)boardPos.x, (int)boardPos.y]];
         return YES;
     }
     return NO;
@@ -80,6 +80,14 @@
         
         Board* board = [[BoardManager sharedInstance] board];
         [board addUnit:unit];
+        
+        Tile* tile = (Tile*)[board getChildByTag:(int)(boardPos.x*10 + boardPos.y)];
+        
+        CGSize winSize = [[CCDirector sharedDirector] winSize];
+        
+        float unitSpawn = playerNum == 1 ? -unit.contentSize.height : winSize.height + unit.contentSize.height;
+        
+        unit.position = CGPointMake(tile.position.x, unitSpawn);
         [board moveUnit:unit toPos:boardPos];
         
     }
@@ -126,7 +134,7 @@
     
     int cost = [[parameters valueForKey:@"cost"] intValue];
     
-    if([[PlayerManager sharedInstance] thisPlayersTurn] && [[PlayerManager sharedInstance] hasMana:cost]) {
+    if([[PlayerManager sharedInstance] thisPlayersTurn] && [[PlayerManager sharedInstance] hasMana:cost] && ![[MatchManager sharedInstance] showingRecap]) {
         
         int playerNum = [[PlayerManager sharedInstance] currentPlayer];
         [[[BoardManager sharedInstance] board] highlightSpawnPoints:playerNum];
@@ -136,14 +144,15 @@
 }
 
 - (void)ccTouchMoved:(UITouch *)touch withEvent:(UIEvent *)event {
-    //    CGPoint touchPoint = [touch locationInView:[touch view]];
-    //        touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];
-    //        [self setPosition:CGPointMake(touchPoint.x, touchPoint.y)];
+        CGPoint touchPoint = [touch locationInView:[touch view]];
+            touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];
+            [self setPosition:CGPointMake(touchPoint.x - self.contentSize.width/2, touchPoint.y - self.contentSize.width/2)];
 }
 
 
 - (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event {	    
     CGPoint boardPos = [[[BoardManager sharedInstance] board] getBoardPosForTouch:touch];
+    Hand* hand = [[PlayerManager sharedInstance] hand];    
     
     bool cardPlayed = NO;
     if([[[BoardManager sharedInstance] board] isValidSpawnPoint:boardPos]) {
@@ -156,9 +165,10 @@
     [[[BoardManager sharedInstance] board] wipeHighlighting];
     
     if(cardPlayed) {
-        Hand* hand = [[PlayerManager sharedInstance] hand];    
         [hand removeCard:self];
     }
+    
+    [hand readjustCards];
     
     
 }

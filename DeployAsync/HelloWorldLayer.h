@@ -14,6 +14,7 @@
 @interface HelloWorldLayer : CCLayer <GCTurnBasedMatchHelperDelegate>
 {
     CCMenuItem* submitTurn;
+    CCMenuItem* reloadButton;
 }
 
 // returns a CCScene that contains the HelloWorldLayer as the only child
