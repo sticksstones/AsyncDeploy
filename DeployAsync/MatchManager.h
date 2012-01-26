@@ -13,6 +13,7 @@
 @interface MatchManager : NSObject {
     NSMutableDictionary* currentMatch;
     NSData* cachedMatchData;
+    NSMutableArray* moveList;
 }
 
 @property (nonatomic, retain) NSMutableDictionary* currentMatch;
@@ -22,5 +23,9 @@
 -(NSData*)serialize;
 -(void)loadState:(NSData*)matchData;
 -(void)setupMatch:(GKTurnBasedMatch*)match;
+-(void)queueMove:(NSString*)move;
+-(void)applyMoveList;
+-(NSData*)serializeMoveList;
+-(void)reset;
 
 @end

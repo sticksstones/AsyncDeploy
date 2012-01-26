@@ -120,22 +120,21 @@
 }
 
 - (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event {	
-    CGPoint touchPoint = [touch locationInView:[touch view]];
+    //CGPoint touchPoint = [touch locationInView:[touch view]];
     
     Unit* unit = [[BoardManager sharedInstance] selectedUnit];
     
     if(unit && !unit.moveUsed && self.highlighted && !self.attackable) {
         Board* board = [[BoardManager sharedInstance] board];
         [unit setMoveUsed:YES];        
-        [board moveUnit:unit toPos:self.boardPos];
+        [board LOGGEDmoveUnit:unit toPos:self.boardPos];
     }
     else if(unit && !unit.actionUsed && self.attackable) {
         Board* board = [[BoardManager sharedInstance] board];
         [unit setActionUsed:YES];        
-        [board unit:unit attacksPos:self.boardPos];        
+        [board LOGGEDunit:unit attacksPos:self.boardPos];
     }
     else if(!CGPointEqualToPoint(unit.boardPos, self.boardPos)) {
-
         [[BoardManager sharedInstance] setSelectedUnit:nil];
     }
 }

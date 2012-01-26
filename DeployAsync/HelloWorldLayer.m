@@ -43,55 +43,69 @@
 	// always call "super" init
 	// Apple recommends to re-assign "self" with the "super" return value
 	if( (self=[super init])) {
-		// create and initialize a Label
         [GCTurnBasedMatchHelper sharedInstance].delegate = self;        
-		// ask director the the window size
-		CGSize size = [[CCDirector sharedDirector] winSize];
-        
-        // Create the board
-        Board* board = [[Board alloc] init];        
-        [[BoardManager sharedInstance] setBoard:board];
-        
-        NSString * plistPath = [[NSBundle mainBundle] pathForResource:@"BoardData" ofType:@"plist"];
-        NSDictionary* boardsData = [NSDictionary dictionaryWithContentsOfFile:plistPath];
-        NSMutableDictionary* boardData = [[NSMutableDictionary alloc] initWithDictionary:[boardsData objectForKey:@"Board1"]];
-
-        [board setupBoard:boardData];
-        [board setBoardName:@"Board1"];
-        [[[PlayerManager sharedInstance] p1Deck] shuffle];
-        [[[PlayerManager sharedInstance] p2Deck] shuffle];
-        
-        board.position = CGPointMake(50 + size.width/2 - board.contentSize.width/2, size.height/2 - board.contentSize.height/2);
-        [self addChild:board];
-                
-        // Setup End Turn Button
-        CCMenuItem* menuItem = [CCMenuItemImage itemFromNormalImage:@"End Turn.png" selectedImage:nil disabledImage:@"End Turn Disabled.png" target:self selector:@selector(endTurn:)];
-        CCMenuItem* menuItem2 = [CCMenuItemImage itemFromNormalImage:@"Reload.png" selectedImage:nil disabledImage:nil target:self selector:@selector(reloadGame:)];
-        submitTurn = menuItem;
-        menuItem2.position = CGPointMake(50,0);
-        CCMenu* menu = [CCMenu menuWithItems:menuItem,menuItem2, nil];
-        menu.position = CGPointMake(40, 25);
-        [self addChild:menu];
-        
-        menuItem = [CCMenuItemImage itemFromNormalImage:@"Main Menu.png" selectedImage:nil disabledImage:nil target:self selector:@selector(mainMenu:)];
-        menuItem2 = [CCMenuItemImage itemFromNormalImage:@"End Game.png" selectedImage:nil disabledImage:nil target:self selector:@selector(endGame:)];
-        menuItem2.position = CGPointMake(0, -50);
-        menu = [CCMenu menuWithItems:menuItem, menuItem2, nil];
-        menu.position = CGPointMake(60, 460);
-        [self addChild:menu];
-
 	}
 	return self;
 }
 
+- (void)reset {
+    [self removeAllChildrenWithCleanup:YES];
+    [[BoardManager sharedInstance] reset];
+    [[PlayerManager sharedInstance] reset];
+    [[MatchManager sharedInstance] reset];
+    [self setupGameScreen];    
+}
+
+-(void)setupGameScreen {
+    // create and initialize a Label
+    // ask director the the window size
+    CGSize size = [[CCDirector sharedDirector] winSize];
+    
+    // Create the board
+    Board* board = [[Board alloc] init];        
+    [[BoardManager sharedInstance] setBoard:board];
+    
+    NSString * plistPath = [[NSBundle mainBundle] pathForResource:@"BoardData" ofType:@"plist"];
+    NSDictionary* boardsData = [NSDictionary dictionaryWithContentsOfFile:plistPath];
+    NSMutableDictionary* boardData = [[NSMutableDictionary alloc] initWithDictionary:[boardsData objectForKey:@"Board1"]];
+    
+    [board setupBoard:boardData];
+    [board setBoardName:@"Board1"];
+    [[[PlayerManager sharedInstance] p1Deck] shuffle];
+    [[[PlayerManager sharedInstance] p2Deck] shuffle];
+    
+    board.position = CGPointMake(50 + size.width/2 - board.contentSize.width/2, size.height/2 - board.contentSize.height/2);
+    [self addChild:board];
+    
+    // Setup End Turn Button
+    CCMenuItem* menuItem = [CCMenuItemImage itemFromNormalImage:@"End Turn.png" selectedImage:nil disabledImage:@"End Turn Disabled.png" target:self selector:@selector(endTurn:)];
+    CCMenuItem* menuItem2 = [CCMenuItemImage itemFromNormalImage:@"Reload.png" selectedImage:nil disabledImage:nil target:self selector:@selector(reloadGame:)];
+    submitTurn = menuItem;
+    menuItem2.position = CGPointMake(50,0);
+    CCMenu* menu = [CCMenu menuWithItems:menuItem,menuItem2, nil];
+    menu.position = CGPointMake(40, 25);
+    [self addChild:menu];
+    
+    menuItem = [CCMenuItemImage itemFromNormalImage:@"Main Menu.png" selectedImage:nil disabledImage:nil target:self selector:@selector(mainMenu:)];
+    menuItem2 = [CCMenuItemImage itemFromNormalImage:@"End Game.png" selectedImage:nil disabledImage:nil target:self selector:@selector(endGame:)];
+    menuItem2.position = CGPointMake(0, -50);
+    menu = [CCMenu menuWithItems:menuItem, menuItem2, nil];
+    menu.position = CGPointMake(60, 460);
+    [self addChild:menu];
+    
+
+}
+
 -(void)mainMenu:(id)sender {
+    [self reset];
     [[CCDirector sharedDirector] replaceScene:[MainMenuLayer scene]];
 }
 -(void)endTurn:(id)sender {
 
     // Update the board
     [[[BoardManager sharedInstance] board] endTurn];    
-
+    
+    [[PlayerManager sharedInstance] setMana:0];
     submitTurn.isEnabled = NO;
 
 }
@@ -141,14 +155,18 @@
     [deck updateDeckCountText];
     [self removeChildByTag:200 cleanup:NO];
     [self addChild:deck z:0 tag:200];    
+    
+    [[MatchManager sharedInstance] applyMoveList];
 }
 
 - (void)setupState:(GKTurnBasedMatch*)match {    
     // Setup the match
-    [[MatchManager sharedInstance] setupMatch:match];    
+    [[MatchManager sharedInstance] setupMatch:match];
 }
 
 - (void)layoutMatch:(GKTurnBasedMatch *)match {
+    [self reset];
+    [[PlayerManager sharedInstance] setThisPlayersTurn:NO];
     NSUInteger currentIndex = [match.participants indexOfObject:match.currentParticipant];    
     
     // Assign player nums
@@ -161,10 +179,15 @@
 
 }
 - (void)takeTurn:(GKTurnBasedMatch *)match {
+    [self reset];
+    
+    [[PlayerManager sharedInstance] setThisPlayersTurn:YES];
     NSUInteger currentIndex = [match.participants indexOfObject:match.currentParticipant];    
     
     // Assign player nums
     int playerNum = currentIndex == 0 ? 1 : -1;    
+    
+
     [[PlayerManager sharedInstance] setCurrentPlayer:playerNum];        
 
     [self setupState:match];
@@ -181,6 +204,8 @@
 }
 
 -(void)enterNewGame:(GKTurnBasedMatch *)match {
+    [self reset];
+    [[PlayerManager sharedInstance] setThisPlayersTurn:YES];
     NSData* initialState = [[MatchManager sharedInstance] serialize];
     [[MatchManager sharedInstance] setCachedMatchData:initialState];
     //[self layoutMatch:match];

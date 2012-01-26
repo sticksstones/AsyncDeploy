@@ -10,6 +10,7 @@
 #import "Unit.h"
 #import "PlayerManager.h"
 #import "BoardManager.h"
+#import "MatchManager.h"
 #import "Board.h"
 
 #import "Hand.h"
@@ -29,7 +30,7 @@
 
 - (void)setParameters:(NSDictionary *)_parameters {
     parameters = [[NSDictionary alloc] initWithDictionary:_parameters];
-
+    
     int cost = [[parameters valueForKey:@"cost"] intValue];    
     NSString* type = [parameters valueForKey:@"type"];
     NSString* name = [parameters valueForKey:@"name"];
@@ -48,38 +49,42 @@
     CCLabelTTF* costLabel = [[CCLabelTTF alloc] initWithString:[NSString stringWithFormat:@"%d",cost] fontName:@"Helvetica" fontSize:8.0];
     [costLabel setPosition:CGPointMake(self.contentSize.width - 8, self.contentSize.height - 8)];
     [self addChild:costLabel];
-
+    
     // Name label
     CCLabelTTF* nameLabel = [[CCLabelTTF alloc] initWithString:[name uppercaseString] fontName:@"Helvetica" fontSize:10.0];
     [nameLabel setPosition:CGPointMake(self.contentSize.width/2, self.contentSize.height/2)];
     [self addChild:nameLabel];
-
-
+    
+    
 }
 
-- (bool)playCardOnPos:(CGPoint)boardPos {
-    int cost = [[parameters valueForKey:@"cost"] intValue];
+- (bool)LOGGEDplayCardOnPos:(CGPoint)boardPos playerNum:(int)playerNum {
+    if([self playCardOnPos:boardPos playerNum:playerNum]) {
+        // Log the event
+        // Format: play cardname dest_tile        
+        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"play %d %@ %d%d", playerNum, [parameters valueForKey:@"name"], (int)boardPos.x, (int)boardPos.y]];
+        return YES;
+    }
+    return NO;
+}
+
+- (bool)playCardOnPos:(CGPoint)boardPos playerNum:(int)playerNum {
     NSString* type = [parameters valueForKey:@"type"];
     
-    if([[PlayerManager sharedInstance] hasMana:cost]) {
     if([type isEqualToString:@"unit"]) {    
         
         Unit* unit = [[Unit alloc] initWithFile:@"Unit.png"];            
-
+        
         [unit setupFromCardParams:[self parameters]];
-        [unit setPlayerNum:[[PlayerManager sharedInstance] currentPlayer]];
+        [unit setPlayerNum:playerNum];
         
         Board* board = [[BoardManager sharedInstance] board];
         [board addUnit:unit];
         [board moveUnit:unit toPos:boardPos];
         
-        [[PlayerManager sharedInstance] payMana:cost];
     }
     
-    return YES;
-    }
-    return NO;
-    
+    return YES;    
 }
 
 - (void)onEnter
@@ -118,11 +123,11 @@
 - (BOOL)ccTouchBegan:(UITouch *)touch withEvent:(UIEvent *)event
 {
 	if (![self containsTouchLocation:touch] ) return NO;
-
+    
     int cost = [[parameters valueForKey:@"cost"] intValue];
     
-    if([[PlayerManager sharedInstance] hasMana:cost]) {
-
+    if([[PlayerManager sharedInstance] thisPlayersTurn] && [[PlayerManager sharedInstance] hasMana:cost]) {
+        
         int playerNum = [[PlayerManager sharedInstance] currentPlayer];
         [[[BoardManager sharedInstance] board] highlightSpawnPoints:playerNum];
         return YES;
@@ -142,7 +147,11 @@
     
     bool cardPlayed = NO;
     if([[[BoardManager sharedInstance] board] isValidSpawnPoint:boardPos]) {
-        cardPlayed = [self playCardOnPos:boardPos];
+        int cost = [[parameters valueForKey:@"cost"] intValue];
+        if([[PlayerManager sharedInstance] hasMana:cost]) {
+            cardPlayed = [self LOGGEDplayCardOnPos:boardPos playerNum:[[PlayerManager sharedInstance] currentPlayer]];
+            [[PlayerManager sharedInstance] payMana:cost];
+        }
     }
     [[[BoardManager sharedInstance] board] wipeHighlighting];
     
@@ -150,8 +159,8 @@
         Hand* hand = [[PlayerManager sharedInstance] hand];    
         [hand removeCard:self];
     }
-
-
+    
+    
 }
 
 

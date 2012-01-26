@@ -15,7 +15,7 @@
 
 @implementation PlayerManager
 
-@synthesize currentPlayer, hand, mana, manaMax;
+@synthesize currentPlayer, thisPlayersTurn, hand, mana, manaMax;
 @synthesize p1Deck,p2Deck,p1Hand,p2Hand;
 
 static PlayerManager *sharedInstance = nil;
@@ -28,6 +28,11 @@ static PlayerManager *sharedInstance = nil;
     }
     return sharedInstance;   
 }
+
+- (void)reset {
+    sharedInstance = nil;
+}
+
 
 
 - (id)init
@@ -47,7 +52,7 @@ static PlayerManager *sharedInstance = nil;
         [p1Deck setDeck:deckData];
         [p2Deck setDeck:deckData];
         
-        for(int i = 0; i < STARTING_CARDS; ++i) {
+        for(int i = 1; i < STARTING_CARDS; ++i) {
             Card* p1Card = [p1Deck drawCard];
             if(p1Card) {
                 [p1Hand addCard:p1Card];        
@@ -58,6 +63,13 @@ static PlayerManager *sharedInstance = nil;
             }
             
         }
+
+        // One more card for player 2.
+        Card* p2Card = [p2Deck drawCard];
+        if(p2Card) {
+            [p2Hand addCard:p2Card]; 
+        }
+
         
         p1ManaMax = p2ManaMax = STARTING_MANA;
     }

@@ -20,6 +20,7 @@
 @property (nonatomic, retain) Unit* selectedUnit;
 
 +(BoardManager*)sharedInstance;
+- (void)reset;
 
 
 @end

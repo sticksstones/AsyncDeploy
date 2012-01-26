@@ -158,7 +158,7 @@
 
 
 - (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event {	
-    CGPoint touchPoint = [touch locationInView:[touch view]];
+    //CGPoint touchPoint = [touch locationInView:[touch view]];
 }
 
 - (void)setupFromCardParams:(NSDictionary*)params {

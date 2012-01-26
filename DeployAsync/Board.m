@@ -141,7 +141,16 @@
     }
 }
 
-- (void)moveUnit:(Unit*)unit toPos:(CGPoint)boardPos {
+- (void)LOGGEDmoveUnit:(Unit*)unit toPos:(CGPoint)boardPos {
+    CGPoint origBoardPos = [unit boardPos];
+    if([self moveUnit:unit toPos:boardPos]) {
+        // Log the event
+        // Format: move src_tile dest_tile    
+        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"move %d%d %d%d", (int)(origBoardPos.x),(int)(origBoardPos.y),(int)boardPos.x,(int)boardPos.y]];            
+    }
+}
+
+- (bool)moveUnit:(Unit*)unit toPos:(CGPoint)boardPos {
     
     // Unoccupy unit's current tile
     CGPoint origBoardPos = [unit boardPos];
@@ -165,10 +174,19 @@
     [unit runAction:moveToTile];
     
     [self wipeHighlighting];
+    return YES;
     
 }
 
-- (void)unit:(Unit*)unit attacksPos:(CGPoint)boardPos {
+- (void)LOGGEDunit:(Unit*)unit attacksPos:(CGPoint)boardPos  {
+    if([self unit:unit attacksPos:boardPos]) {
+        // Log the event
+        // Format: atk src_unit_pos dest_unit_pos
+        [[MatchManager sharedInstance] queueMove:[NSString stringWithFormat:@"atk %d%d %d%d", (int)(unit.boardPos.x),(int)(unit.boardPos.y),(int)boardPos.x,(int)boardPos.y]];        
+    }
+}
+
+- (bool)unit:(Unit*)unit attacksPos:(CGPoint)boardPos {
     int tag;    
     Tile* tile;
     
@@ -179,7 +197,8 @@
         Unit* occupyingUnit = [tile occupyingUnit];
         
         // Only if the tile is occupied and in attackable range
-        if(occupyingUnit && [tile attackable]) {
+        if(occupyingUnit) {
+            
             
             // Damage enemy unit
             [occupyingUnit damage:[unit AP]];
@@ -207,9 +226,11 @@
             }
             
             // Wipe the board of highlights
-            [self wipeHighlighting];                        
+            [self wipeHighlighting];        
+            return YES;
         }
     }
+    return NO;
     
 }
 
@@ -221,6 +242,7 @@
     [tokenArray removeObject:unit];        
     [self removeChild:unit cleanup:YES];
 }
+
 - (void)highlightRow:(int)row {
     for(int x = 1; x <= COLUMNS; ++x) {
         int tag = [[NSString stringWithFormat:@"%d%d",x,row] intValue];
@@ -313,6 +335,17 @@
     [self addChild:unit];
 }
 
+- (Unit*)getUnitAtBoardPos:(CGPoint)boardPos {
+    int tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x,(int)boardPos.y] intValue];
+    
+    Tile* tile = (Tile*)[self getChildByTag:tag];
+    if(tile) {
+        return tile.occupyingUnit;
+    }
+    
+    return nil;
+}
+
 - (void)awardMana {
     [[PlayerManager sharedInstance] setManaMax:2];
     for(int x = 1; x <= COLUMNS; ++x) {
@@ -363,7 +396,7 @@
     }
     else {
         // Fizzle mana
-        [[PlayerManager sharedInstance] setMana:0];
+        //[[PlayerManager sharedInstance] setMana:0];
     }
 }
 
@@ -378,7 +411,7 @@
     }    
     
     // Send game-state
-    NSData* gameState = [[MatchManager sharedInstance] serialize];
+    NSData* gameState = [[MatchManager sharedInstance] serializeMoveList];
     
     GKTurnBasedMatch *currentMatch = [[GCTurnBasedMatchHelper sharedInstance] currentMatch];
     

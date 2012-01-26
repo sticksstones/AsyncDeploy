@@ -15,6 +15,7 @@
 
 @property (nonatomic, retain) NSDictionary* parameters;
 
-- (bool)playCardOnPos:(CGPoint)boardPos;
+- (bool)LOGGEDplayCardOnPos:(CGPoint)boardPos playerNum:(int)playerNum;
+- (bool)playCardOnPos:(CGPoint)boardPos playerNum:(int)playerNum;
 
 @end

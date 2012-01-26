@@ -22,9 +22,12 @@
 - (void)setTokens:(NSArray*)tokens forPlayer:(int)playerNum;
 - (void)setupBoard:(NSDictionary*)params;
 - (void)addUnit:(Unit*)unit;
+- (Unit*)getUnitAtBoardPos:(CGPoint)boardPos;
 - (void)removeUnit:(Unit*)unit;
-- (void)moveUnit:(Unit*)unit toPos:(CGPoint)boardPos;
-- (void)unit:(Unit*)unit attacksPos:(CGPoint)boardPos;
+- (void)LOGGEDmoveUnit:(Unit*)unit toPos:(CGPoint)boardPos;
+- (bool)moveUnit:(Unit*)unit toPos:(CGPoint)boardPos;
+- (void)LOGGEDunit:(Unit*)unit attacksPos:(CGPoint)boardPos;
+- (bool)unit:(Unit*)unit attacksPos:(CGPoint)boardPos;
 - (void)highlightSpawnPoints:(int)playerNum;
 - (void)highlightMovePoints:(Unit*)unit;
 - (void)highlightAttackPoints:(Unit*)unit;

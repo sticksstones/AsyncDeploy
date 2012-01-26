@@ -13,6 +13,7 @@
 
 @interface PlayerManager : NSObject {
     int currentPlayer;
+    bool thisPlayersTurn;
     Hand* p1Hand;
     Hand* p2Hand;
     Deck* p1Deck;
@@ -25,6 +26,8 @@
 }
 
 @property (nonatomic) int currentPlayer;
+@property (nonatomic) bool thisPlayersTurn;
+
 @property (nonatomic) int mana;
 @property (nonatomic) int manaMax;
 
@@ -44,5 +47,6 @@
 -(bool)hasMana:(int)manaAmount;
 -(void)payMana:(int)manaAmount;
 -(void)resetMana;
+-(void)reset;
 
 @end

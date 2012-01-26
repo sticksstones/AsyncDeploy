@@ -25,6 +25,10 @@ static BoardManager *sharedInstance = nil;
     return sharedInstance;   
 }
 
+- (void)reset {
+    sharedInstance = nil;
+}
+
 - (void)setSelectedUnit:(Unit*)_selectedUnit {
     
     // Unhighlight previously selected unit
