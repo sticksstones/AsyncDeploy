@@ -144,6 +144,8 @@
 		C283EF8214CE64BF00F3DBE6 /* MoveAvail.png in Resources */ = {isa = PBXBuildFile; fileRef = C283EF8014CE64BF00F3DBE6 /* MoveAvail.png */; };
 		C283EF8414CE6CF800F3DBE6 /* CardBackground.png in Resources */ = {isa = PBXBuildFile; fileRef = C283EF8314CE6CF800F3DBE6 /* CardBackground.png */; };
 		C283EF8814CE6D1D00F3DBE6 /* Card.m in Sources */ = {isa = PBXBuildFile; fileRef = C283EF8714CE6D1D00F3DBE6 /* Card.m */; };
+		C290C2D014D21012004F6D6A /* Crystal.m in Sources */ = {isa = PBXBuildFile; fileRef = C290C2CF14D21011004F6D6A /* Crystal.m */; };
+		C290C2D314D22FC6004F6D6A /* Crystal.png in Resources */ = {isa = PBXBuildFile; fileRef = C290C2D214D22FC6004F6D6A /* Crystal.png */; };
 		C2CC80FA14CE6FB70071EA79 /* CardData.plist in Resources */ = {isa = PBXBuildFile; fileRef = C2CC80F914CE6FB70071EA79 /* CardData.plist */; };
 		C2CC80FE14CE86970071EA79 /* Hand.m in Sources */ = {isa = PBXBuildFile; fileRef = C2CC80FD14CE86970071EA79 /* Hand.m */; };
 		C2D5E4BA14CE96D8005FE64F /* Deck.m in Sources */ = {isa = PBXBuildFile; fileRef = C2D5E4B914CE96D8005FE64F /* Deck.m */; };
@@ -417,6 +419,9 @@
 		C283EF8314CE6CF800F3DBE6 /* CardBackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CardBackground.png; sourceTree = "<group>"; };
 		C283EF8614CE6D1D00F3DBE6 /* Card.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Card.h; sourceTree = "<group>"; };
 		C283EF8714CE6D1D00F3DBE6 /* Card.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Card.m; sourceTree = "<group>"; };
+		C290C2CE14D21011004F6D6A /* Crystal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Crystal.h; sourceTree = "<group>"; };
+		C290C2CF14D21011004F6D6A /* Crystal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Crystal.m; sourceTree = "<group>"; };
+		C290C2D214D22FC6004F6D6A /* Crystal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Crystal.png; sourceTree = "<group>"; };
 		C2CC80F914CE6FB70071EA79 /* CardData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = CardData.plist; sourceTree = "<group>"; };
 		C2CC80FC14CE86970071EA79 /* Hand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hand.h; sourceTree = "<group>"; };
 		C2CC80FD14CE86970071EA79 /* Hand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Hand.m; sourceTree = "<group>"; };
@@ -454,6 +459,8 @@
 			children = (
 				C233930914CE0E95002CA946 /* Unit.h */,
 				C233930A14CE0E95002CA946 /* Unit.m */,
+				C290C2CE14D21011004F6D6A /* Crystal.h */,
+				C290C2CF14D21011004F6D6A /* Crystal.m */,
 			);
 			name = "Game Objects";
 			sourceTree = "<group>";
@@ -538,6 +545,7 @@
 		C260E7A814CDFC360083A27D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				C290C2D214D22FC6004F6D6A /* Crystal.png */,
 				C2EEC5C914D174F80038C5F7 /* Disabled Reload.png */,
 				C263FE4614CFE31D00361898 /* Reload.png */,
 				C2D5E4BE14CEB48C005FE64F /* DeckData.plist */,
@@ -913,6 +921,7 @@
 				C263FE4514CF9F7400361898 /* End Game.png in Resources */,
 				C263FE4714CFE31E00361898 /* Reload.png in Resources */,
 				C2EEC5CA14D174F80038C5F7 /* Disabled Reload.png in Resources */,
+				C290C2D314D22FC6004F6D6A /* Crystal.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1035,6 +1044,7 @@
 				C263FE3C14CF55EC00361898 /* MainMenuLayer.m in Sources */,
 				C263FE3F14CF67D700361898 /* MatchManager.m in Sources */,
 				C2EEC5C414D1081C0038C5F7 /* RecapLabel.m in Sources */,
+				C290C2D014D21012004F6D6A /* Crystal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

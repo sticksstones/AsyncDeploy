@@ -9,6 +9,7 @@
 #import "Board.h"
 #import "Tile.h"
 #import "Unit.h"
+#import "Crystal.h"
 
 #import "BoardManager.h"
 #import "PlayerManager.h"
@@ -24,6 +25,8 @@
 #define WIDTH_SPACING 10
 #define HEIGHT_SPACING 0
 
+#define CRYSTAL_HP 50
+
 @implementation Board
 
 @synthesize boardName;
@@ -34,6 +37,9 @@
     if (self) {
         p1Tokens = [NSMutableArray new];
         p2Tokens = [NSMutableArray new];
+        p1Crystals = [NSMutableArray new];
+        p2Crystals = [NSMutableArray new];        
+        
         self.contentSize = CGSizeMake(200, 475);
         
         
@@ -61,6 +67,43 @@
         }
     }    
     return self;
+}
+
+- (NSArray*)getCrystalsForPlayer:(int)playerNum {
+    NSArray* tokenArray = playerNum == 1 ? p1Crystals : p2Crystals;
+    
+    NSMutableArray* serializedTokens = [NSMutableArray new];
+    
+    for(Crystal* crystal in tokenArray) {
+        NSDictionary* crystalState = [crystal serialize];
+        [serializedTokens addObject:crystalState];
+    }
+    
+    return serializedTokens;
+    
+}
+
+- (void)setCrystals:(NSArray*)crystals forPlayer:(int)playerNum {
+    NSMutableArray* tokenArray = playerNum == 1 ? p1Crystals : p2Crystals;
+    
+    
+    for(Crystal* crystal in tokenArray) {
+        [self removeChild:crystal cleanup:YES];
+    }
+    
+    [tokenArray removeAllObjects];
+    
+    for(NSDictionary* crystalState in crystals) {
+        Crystal* crystal = [[Crystal alloc] initWithFile:@"Crystal.png"];
+        [crystal setupCrystal:crystalState];
+        
+        Tile* tile = (Tile*)[self getChildByTag:(int)(crystal.boardPos.x*10 + crystal.boardPos.y)];
+        crystal.maxHP = CRYSTAL_HP;
+        crystal.position = tile.position;
+        tile.crystal = crystal;        
+        [self addCrystal:crystal];        
+    }
+    
 }
 
 - (NSArray*)getTokensForPlayer:(int)playerNum {
@@ -113,12 +156,12 @@
 - (void)setupBoard:(NSDictionary*)params {
     
     [self resetTiles];
-
+    
     for(NSString* tileKey in [params allKeys]) {
         int tag = [tileKey intValue];
         NSString* tileProperty = [params valueForKey:tileKey];
         Tile* tile = (Tile*)[self getChildByTag:tag];
-
+        
         if([tileProperty isEqualToString:@"mana"]) {
             
             [tile setManaValue:1];
@@ -126,6 +169,33 @@
         else if([tileProperty isEqualToString:@"double mana"]) {
             [tile setManaValue:2];
         }
+    }
+    
+    
+    // Add the crystals for both players
+    for(int x = 1; x <= COLUMNS; ++x) {
+        Crystal* crystal;    
+        crystal = [[Crystal alloc] initWithFile:@"Crystal.png"];
+        crystal.playerNum = -1;
+        crystal.HP = CRYSTAL_HP;
+        crystal.maxHP = CRYSTAL_HP;
+        crystal.boardPos = CGPointMake(x, ROWS);
+        Tile* tile;
+        tile = (Tile*)[self getChildByTag:(x*10 + ROWS)];
+        crystal.position = tile.position;
+        tile.crystal = crystal;
+        [self addCrystal:crystal];
+        
+        
+        crystal = [[Crystal alloc] initWithFile:@"Crystal.png"];
+        crystal.playerNum = 1;
+        crystal.HP = CRYSTAL_HP;
+        crystal.maxHP = CRYSTAL_HP;
+        crystal.boardPos = CGPointMake(x, 1);
+        tile = (Tile*)[self getChildByTag:(x*10 + 1)];
+        crystal.position = tile.position;
+        tile.crystal = crystal;        
+        [self addCrystal:crystal];
     }
 }
 
@@ -171,7 +241,7 @@
     tile = (Tile*)[self getChildByTag:tag];
     [tile setOccupied:YES];
     [tile setOccupyingUnit:unit];
-
+    
     CCActionEase* moveToTile = [CCActionEase actionWithAction:[CCMoveTo actionWithDuration:1.0 position:tile.position]];
     
     //CCSequence* seq = [CCSequence actions:moveToTile,[CCCallFunc actionWithTarget:[MatchManager sharedInstance] selector:@selector(popMove:)],nil];
@@ -190,6 +260,49 @@
     }
 }
 
+- (void)removeCrystal:(Crystal *)crystal {
+    int crystalOwner = [crystal playerNum];
+    int winner = -1*crystalOwner;
+    
+    bool thisPlayerWon = [[PlayerManager sharedInstance] currentPlayer] == winner && [[PlayerManager sharedInstance] thisPlayersTurn];
+    
+    
+    GKTurnBasedMatch *currentMatch = [[GCTurnBasedMatchHelper sharedInstance] currentMatch];
+    for (GKTurnBasedParticipant *part in currentMatch.participants) {
+        if([part.playerID isEqualToString:[GKLocalPlayer localPlayer].playerID]) {
+            if(thisPlayerWon) {
+                part.matchOutcome = GKTurnBasedMatchOutcomeWon;
+            }
+            else {
+                part.matchOutcome = GKTurnBasedMatchOutcomeLost;
+            }
+        }
+        else {
+            if(thisPlayerWon) {
+                part.matchOutcome = GKTurnBasedMatchOutcomeLost;            
+            }
+            else {
+                part.matchOutcome = GKTurnBasedMatchOutcomeWon;
+            }
+        }
+    }
+    [currentMatch endMatchInTurnWithMatchData:[[MatchManager sharedInstance] serialize] completionHandler:^(NSError *error) {
+        if (error) {
+            NSLog(@"%@", error);
+        }
+    }];
+    
+    
+    int playerNum = [crystal playerNum];
+    NSMutableArray* tokenArray = playerNum == 1 ? p1Crystals : p2Crystals;
+    
+    [tokenArray removeObject:crystal];        
+    [self removeChild:crystal cleanup:YES];
+
+    
+
+}
+
 - (bool)unit:(Unit*)unit attacksPos:(CGPoint)boardPos {
     int tag;    
     Tile* tile;
@@ -198,46 +311,63 @@
     tile = (Tile*)[self getChildByTag:tag];
     
     if(tile) { // If tile exists
-        Unit* occupyingUnit = [tile occupyingUnit];
         
-        // Only if the tile is occupied and in attackable range
-        if(occupyingUnit) {
+        Crystal* crystal = [tile crystal];
+        if(crystal) {
+            [crystal damage:[unit AP]];
             
-            
-            // Damage enemy unit
-            [occupyingUnit damage:[unit AP]];
-            
-            // Enemy unit damages back (if in range)
-            if((int)(fabs([unit boardPos].y - [occupyingUnit boardPos].y)) <= [occupyingUnit attackRadius]) {
-                if((int)(fabs([unit boardPos].x - [occupyingUnit boardPos].x)) <= [occupyingUnit attackRadius]-1) {
-                    [unit damage:[occupyingUnit AP]];
-                }
+            if([crystal HP] <= 0) {
+                [self removeCrystal:crystal];
+                [tile setCrystal:nil];
             }
-            
-            // If enemy unit is dead, remove
-            if([occupyingUnit HP] <= 0) {
-                [self removeUnit:occupyingUnit];
-                [tile setOccupyingUnit:nil];
-            }
-            
-            // Do same for attacking unit
-            if([unit HP] <= 0) {
-                [self removeUnit:unit];
-                CGPoint boardPos = [unit boardPos]; 
-                int tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y)] intValue];
-                Tile* unitTile = (Tile*)[self getChildByTag:tag];
-                [unitTile setOccupyingUnit:nil];                
-            }
-            
-            // Wipe the board of highlights
             [self wipeHighlighting];        
             
-            
-            
-//            CCSequence* seq = [CCSequence actions:[CCDelayTime actionWithDuration:2.0], [CCCallFunc actionWithTarget:[MatchManager sharedInstance] selector:@selector(popMove:)],nil];
-//            [self runAction:seq];
-//            
             return YES;
+        }
+        else {
+            
+            Unit* occupyingUnit = [tile occupyingUnit];
+            
+            // Only if the tile is occupied and in attackable range
+            if(occupyingUnit) {
+                
+                
+                // Damage enemy unit
+                [occupyingUnit damage:[unit AP]];
+                
+                // Enemy unit damages back (if in range)
+                if((int)(fabs([unit boardPos].y - [occupyingUnit boardPos].y)) <= [occupyingUnit attackRadius]) {
+                    if((int)(fabs([unit boardPos].x - [occupyingUnit boardPos].x)) <= [occupyingUnit attackRadius]-1) {
+                        [unit damage:[occupyingUnit AP]];
+                    }
+                }
+                
+                // If enemy unit is dead, remove
+                if([occupyingUnit HP] <= 0) {
+                    [self removeUnit:occupyingUnit];
+                    [tile setOccupyingUnit:nil];
+                }
+                
+                // Do same for attacking unit
+                if([unit HP] <= 0) {
+                    [self removeUnit:unit];
+                    CGPoint boardPos = [unit boardPos]; 
+                    int tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y)] intValue];
+                    Tile* unitTile = (Tile*)[self getChildByTag:tag];
+                    [unitTile setOccupyingUnit:nil];                
+                }
+                
+                // Wipe the board of highlights
+                [self wipeHighlighting];        
+                
+                
+                
+                //            CCSequence* seq = [CCSequence actions:[CCDelayTime actionWithDuration:2.0], [CCCallFunc actionWithTarget:[MatchManager sharedInstance] selector:@selector(popMove:)],nil];
+                //            [self runAction:seq];
+                //            
+                
+                return YES;
+            }
         }
     }
     return NO;
@@ -289,11 +419,11 @@
         // Set +/- tiles to highlighted
         tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y + x)] intValue];
         tile = (Tile*)[self getChildByTag:tag];
-        [tile setHighlighted:YES && ![tile occupied] && ![unit moveUsed]];
+        [tile setHighlighted:![tile occupied] && ![unit moveUsed] && (!([tile crystal] && [[tile crystal] playerNum] != [unit playerNum]))];
         
         tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y - x)] intValue];
         tile = (Tile*)[self getChildByTag:tag];
-        [tile setHighlighted:YES && ![tile occupied] && ![unit moveUsed]];
+        [tile setHighlighted:![tile occupied] && ![unit moveUsed] && (!([tile crystal] && [[tile crystal] playerNum] != [unit playerNum]))];
         
     }
     
@@ -312,26 +442,35 @@
     // Set +/- tiles to highlighted
     tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y + attackRadius)] intValue];
     tile = (Tile*)[self getChildByTag:tag];
-    [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
+    [tile checkAttackable:unit];
     
     tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x, (int)(boardPos.y - attackRadius)] intValue];
     tile = (Tile*)[self getChildByTag:tag];
-    [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
+    [tile checkAttackable:unit];
     
     // Handle longer distance attackers that can attack across lanes
     if(attackRadius > 1) {
         tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x - (attackRadius-1), (int)(boardPos.y)] intValue];
         tile = (Tile*)[self getChildByTag:tag];
         if(tile) {
-            [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
+            [tile checkAttackable:unit];
         }
         
         tag = [[NSString stringWithFormat:@"%d%d",(int)boardPos.x + (attackRadius-1), (int)(boardPos.y)] intValue];
         tile = (Tile*)[self getChildByTag:tag];
         if(tile) {
-            [tile setAttackable:[tile occupied] && [[tile occupyingUnit] playerNum] != [unit playerNum] && ![unit actionUsed]];
+            [tile checkAttackable:unit];
         }
     }
+}
+
+- (void)addCrystal:(Crystal*)crystal {
+    int playerNum = [crystal playerNum];
+    NSMutableArray* crystalArray = playerNum == 1 ? p1Crystals : p2Crystals;
+    
+    [crystalArray addObject:crystal];
+    
+    [self addChild:crystal];
 }
 
 - (void)addUnit:(Unit*)unit {
@@ -449,7 +588,7 @@
             NSLog(@"nex part %@", nextParticipant);
         }
     }
-    
+
     [currentMatch endTurnWithNextParticipant:nextParticipant matchData:gameState completionHandler:^(NSError *error) {
         if (error) {
             NSLog(@"%@", error);

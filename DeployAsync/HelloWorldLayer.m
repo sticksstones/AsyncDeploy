@@ -18,6 +18,7 @@
 #import "Deck.h"
 #import "MatchManager.h"
 #import "MainMenuLayer.h"
+#import "RecapLabel.h"
 
 // HelloWorldLayer implementation
 @implementation HelloWorldLayer
@@ -96,7 +97,7 @@
     menu.position = CGPointMake(60, 460);
     [self addChild:menu];
     
-
+    
 }
 
 -(void)mainMenu:(id)sender {
@@ -105,41 +106,45 @@
     [[[CCDirector sharedDirector] openGLView] addSubview:tempVC.view];
     [[GCTurnBasedMatchHelper sharedInstance] 
      findMatchWithMinPlayers:2 maxPlayers:2 viewController:tempVC];
-
+    
     //[[CCDirector sharedDirector] replaceScene:[MainMenuLayer scene]];
 }
 -(void)endTurn:(id)sender {
-
-
+    
+    
     // Update the board
     [[[BoardManager sharedInstance] board] endTurn];    
     
     [[PlayerManager sharedInstance] setMana:0];
     submitTurn.isEnabled = NO;
     reloadButton.isEnabled = NO;
-
+    
 }
 
 -(void)endGame:(id)sender {
     
-     GKTurnBasedMatch *currentMatch = [[GCTurnBasedMatchHelper sharedInstance] currentMatch];
-     for (GKTurnBasedParticipant *part in currentMatch.participants) {
-     part.matchOutcome = GKTurnBasedMatchOutcomeTied;
-     }
-     [currentMatch endMatchInTurnWithMatchData:[[MatchManager sharedInstance] serialize] completionHandler:^(NSError *error) {
-     if (error) {
-     NSLog(@"%@", error);
-     }
-     }];
-     [self mainMenu:nil];
-
+    GKTurnBasedMatch *currentMatch = [[GCTurnBasedMatchHelper sharedInstance] currentMatch];
+    for (GKTurnBasedParticipant *part in currentMatch.participants) {
+        if([part.playerID isEqualToString:[GKLocalPlayer localPlayer].playerID]) {
+            part.matchOutcome = GKTurnBasedMatchOutcomeQuit;
+        }
+        else {
+            part.matchOutcome = GKTurnBasedMatchOutcomeWon;            
+        }
+    }
+    [currentMatch endMatchInTurnWithMatchData:[[MatchManager sharedInstance] serialize] completionHandler:^(NSError *error) {
+        if (error) {
+            NSLog(@"%@", error);
+        }
+    }];
+    [self mainMenu:nil];
+    
 }
 
 -(void)reloadGame:(id)sender {
     //[self reset];
     [[MatchManager sharedInstance] setSkipRecap:NO];
     [self setupState:[[GCTurnBasedMatchHelper sharedInstance] currentMatch]];
-    //[[MatchManager sharedInstance] loadState:[[MatchManager sharedInstance] cachedMatchData]];
 }
 
 // on "dealloc" you need to release all your retained objects
@@ -178,21 +183,23 @@
 
 - (void)layoutMatch:(GKTurnBasedMatch *)match {
     [self reset];
+    firstTurn = NO;
     [[PlayerManager sharedInstance] setThisPlayersTurn:NO];
     NSUInteger currentIndex = [match.participants indexOfObject:match.currentParticipant];    
     
     // Assign player nums
     int playerNum = currentIndex == 0 ? -1 : 1;
-
+    
     [[PlayerManager sharedInstance] setCurrentPlayer:playerNum];        
     [self setupState:match];
     
     submitTurn.isEnabled = NO;
-
-
+    
+    
 }
 - (void)takeTurn:(GKTurnBasedMatch *)match {
     [self reset];
+    firstTurn = NO;
     
     [[PlayerManager sharedInstance] setThisPlayersTurn:YES];
     NSUInteger currentIndex = [match.participants indexOfObject:match.currentParticipant];    
@@ -200,16 +207,17 @@
     // Assign player nums
     int playerNum = currentIndex == 0 ? 1 : -1;    
     
-
+    
     [[PlayerManager sharedInstance] setCurrentPlayer:playerNum];        
-
+    
     [self setupState:match];
     
     submitTurn.isEnabled = YES;
 }
 
 - (void)recieveEndGame:(GKTurnBasedMatch *)match {
-    
+    NSLog(@"Received end game!"); 
+    [self layoutMatch:match];
 }
 - (void)sendNotice:(NSString *)notice forMatch:(GKTurnBasedMatch *)match {
     UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"Alert" message:notice delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
@@ -219,13 +227,41 @@
 -(void)enterNewGame:(GKTurnBasedMatch *)match {
     [self reset];
     [[PlayerManager sharedInstance] setThisPlayersTurn:YES];
-    NSData* initialState = [[MatchManager sharedInstance] serialize];
-    [[MatchManager sharedInstance] setCachedMatchData:initialState];
-    //[self layoutMatch:match];
+    
     [[PlayerManager sharedInstance] setCurrentPlayer:1];
     [self loadTurn];
-    submitTurn.isEnabled = YES;
+    
+    NSData* initialState = [[MatchManager sharedInstance] serialize];
+    [[MatchManager sharedInstance] setCachedMatchData:initialState];
 
+    [self removeAllChildrenWithCleanup:YES];
+    
+    GKTurnBasedMatch *currentMatch = [[GCTurnBasedMatchHelper sharedInstance] currentMatch];
+    
+    NSUInteger currentIndex = [currentMatch.participants indexOfObject:currentMatch.currentParticipant];
+    GKTurnBasedParticipant *nextParticipant;
+    
+    NSUInteger nextIndex = currentIndex;
+    nextParticipant = [currentMatch.participants objectAtIndex:nextIndex];
+    
+    [currentMatch endTurnWithNextParticipant:nextParticipant matchData:initialState completionHandler:^(NSError *error) {
+        if (error) {
+            NSLog(@"%@", error);
+        } else {
+        }
+    }];
+    NSLog(@"Send Turn, %@, %@", initialState, nextParticipant);
+
+    
+    CCMenuItemImage* menuItem = [CCMenuItemImage itemFromNormalImage:@"Main Menu.png" selectedImage:nil disabledImage:nil target:self selector:@selector(mainMenu:)];
+    CCMenu* menu = [CCMenu menuWithItems:menuItem, nil];
+    menu.position = CGPointMake(60, 460);
+    [self addChild:menu];
+    
+    RecapLabel* recapLabel = [[RecapLabel alloc] initWithString:@"LOADING..." fontName:@"Helvetica" fontSize:32.0];
+    CGSize winSize = [[CCDirector sharedDirector] winSize];
+    recapLabel.position = CGPointMake(winSize.width/2, winSize.height/2);
+    [self addChild:recapLabel];    
 }
 
 - (void)ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {

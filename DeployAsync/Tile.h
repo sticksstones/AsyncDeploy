@@ -10,12 +10,14 @@
 #import "cocos2d.h"
 
 @class Unit;
+@class Crystal;
 
 @interface Tile : CCSprite <CCTargetedTouchDelegate> {
     bool highlighted;
     bool occupied;
     bool attackable;
     Unit* occupyingUnit;
+    Crystal* crystal;
     CGPoint boardPos; 
     int manaValue;
 }
@@ -25,9 +27,11 @@
 @property (nonatomic) bool occupied;
 @property (nonatomic) CGPoint boardPos;
 @property (nonatomic, retain) Unit* occupyingUnit;
+@property (nonatomic, retain) Crystal* crystal;
 @property (nonatomic) int manaValue;
 
 - (void)reset;
 - (BOOL)containsTouchLocation:(UITouch *)touch;
+- (void)checkAttackable:(Unit*)unit;
 
 @end

@@ -54,17 +54,17 @@ static MatchManager *sharedInstance = nil;
 
 - (void)performMove:(NSString*)move {
     NSArray* moveComponents = [move componentsSeparatedByString:@"|"];
-
+    
     RecapLabel* actionLabel = (RecapLabel*)[[[BoardManager sharedInstance] board] getChildByTag:666];
     
     if(!actionLabel) {
         actionLabel = [[RecapLabel alloc] initWithString:@"NEW UNIT!" fontName:@"Helvetica" fontSize:12.0];
         [actionLabel setColor:ccGREEN];
         
-            [[[BoardManager sharedInstance] board] addChild:actionLabel z:0 tag:666];
+        [[[BoardManager sharedInstance] board] addChild:actionLabel z:0 tag:666];
         actionLabel.position = CGPointMake(200,200);        
     }
-
+    
     if(skipRecap) {
         [actionLabel setOpacity:0];
     }
@@ -83,7 +83,7 @@ static MatchManager *sharedInstance = nil;
         [[[BoardManager sharedInstance] board] setUnit:unit AtBoardPos:CGPointMake(srcTileTag/10, srcTileTag%10)];
         [[[BoardManager sharedInstance] board] moveUnit:unit toPos:CGPointMake(destTileTag/10, destTileTag%10)];
         Tile* tile = (Tile*)[[[BoardManager sharedInstance] board] getChildByTag:destTileTag];
-
+        
         if(skipRecap) { // "Fast forward" the unit movement
             [unit stopAllActions];
             [unit setPosition:CGPointMake(tile.position.x, tile.position.y)];
@@ -101,11 +101,11 @@ static MatchManager *sharedInstance = nil;
         
         Unit* unit = [[[BoardManager sharedInstance] board] getUnitAtBoardPos:CGPointMake(srcTileTag/10, srcTileTag%10)];
         [[[BoardManager sharedInstance] board] unit:unit attacksPos:CGPointMake(destTileTag/10, destTileTag%10)];
-
+        
         actionLabel.string = @"ATTACK";
         actionLabel.color = ccWHITE;
         actionLabel.position = CGPointMake(unit.position.x, unit.position.y);
-
+        
     }
     else if([[moveComponents objectAtIndex:0] isEqualToString:@"play"]) {
         int playerNum = [[moveComponents objectAtIndex:1] intValue];
@@ -128,7 +128,7 @@ static MatchManager *sharedInstance = nil;
         actionLabel.string = [NSString stringWithFormat:@"%@", [cardName uppercaseString]];
         actionLabel.color = ccWHITE;
         actionLabel.position = CGPointMake(tile.position.x, tile.position.y);
-    
+        
     }
     
     if(skipRecap) {
@@ -138,7 +138,7 @@ static MatchManager *sharedInstance = nil;
         [actionLabel runAction:seq];
         [actionLabel runAction:seq2];        
     }
-
+    
 }
 
 -(void)popMove:(id)sender {
@@ -148,7 +148,7 @@ static MatchManager *sharedInstance = nil;
         [moveList removeObjectAtIndex:0];
         
         [self performMove:move];
-
+        
     }
     else {
         [self finishMoveList];
@@ -166,16 +166,45 @@ static MatchManager *sharedInstance = nil;
         actionLabel = [[RecapLabel alloc] initWithString:@"NEW UNIT!" fontName:@"Helvetica" fontSize:12.0];        
         [[[BoardManager sharedInstance] board] addChild:actionLabel z:0 tag:666];
     }
-
+    
     [actionLabel stopAllActions];
     [actionLabel setOpacity:255];
-    if([[PlayerManager sharedInstance] thisPlayersTurn]) {
-        [actionLabel setString:@"YOUR TURN"];
+    
+    NSString* label = @"";
+    bool matchOver = YES;
+    
+    GKTurnBasedMatch *gkMatch = [[GCTurnBasedMatchHelper sharedInstance] currentMatch];
+    for (GKTurnBasedParticipant *part in gkMatch.participants) {
+        if([part.playerID isEqualToString:[GKLocalPlayer localPlayer].playerID]) {
+            switch(part.matchOutcome) {
+                case GKTurnBasedMatchOutcomeWon:
+                    label = @"YOU WON";
+                    break;
+                case GKTurnBasedMatchOutcomeLost:
+                    label = @"YOU LOST";
+                    break;
+                case GKTurnBasedMatchOutcomeQuit:
+                    label = @"YOU QUIT";
+                    break;
+                default:
+                    matchOver = NO;
+                    break;
+                    
+            }
+        }
     }
     
-    else {
-        [actionLabel setString:@"THEIR TURN"];
+    if(!matchOver) {
+        if([[PlayerManager sharedInstance] thisPlayersTurn]) {
+            label = @"YOUR TURN";
+        }
+        
+        else {
+            label = @"THEIR TURN";
+        }
     }
+    
+    [actionLabel setString:label];
     
     [actionLabel setColor:ccWHITE];
     [actionLabel setScale:2.0];
@@ -187,7 +216,7 @@ static MatchManager *sharedInstance = nil;
 -(void)applyMoveList {
     showingRecap = YES;
     RecapLabel* actionLabel = (RecapLabel*)[[[BoardManager sharedInstance] board] getChildByTag:666];
-
+    
     if(actionLabel) {
         [actionLabel stopAllActions];
     }
@@ -205,6 +234,9 @@ static MatchManager *sharedInstance = nil;
     NSArray* p2Hand = [myDictionary objectForKey:@"p2Hand"];
     NSArray* p1Tokens = [myDictionary objectForKey:@"p1Tokens"];
     NSArray* p2Tokens = [myDictionary objectForKey:@"p2Tokens"];
+    NSArray* p1Crystals = [myDictionary objectForKey:@"p1Crystals"];
+    NSArray* p2Crystals = [myDictionary objectForKey:@"p2Crystals"];
+    
     NSArray* newMoveList = [myDictionary objectForKey:@"moveList"];
     
     moveList = [[NSMutableArray alloc] initWithArray:newMoveList];
@@ -220,11 +252,13 @@ static MatchManager *sharedInstance = nil;
     [[[PlayerManager sharedInstance] p2Hand] setHand:p2Hand]; 
     [[[BoardManager sharedInstance] board] setTokens:p1Tokens forPlayer:1];
     [[[BoardManager sharedInstance] board] setTokens:p2Tokens forPlayer:-1];        
+    [[[BoardManager sharedInstance] board] setCrystals:p1Crystals forPlayer:1];        
+    [[[BoardManager sharedInstance] board] setCrystals:p2Crystals forPlayer:-1];        
     
     HelloWorldLayer* layer = (HelloWorldLayer*)[[[CCDirector sharedDirector] runningScene] getChildByTag:0];
     if([layer isKindOfClass:[HelloWorldLayer class]])
         [layer loadTurn];
-
+    
 }
 
 -(void)setupMatch:(GKTurnBasedMatch*)match {
@@ -236,17 +270,19 @@ static MatchManager *sharedInstance = nil;
 
 -(NSData*)serializeMoveList {
     [currentMatch setValue:moveList forKey:@"moveList"];    
-
+    
     [currentMatch setObject:[[[PlayerManager sharedInstance] p1Deck] serialize] forKey:@"p1Deck"];
     [currentMatch setObject:[[[PlayerManager sharedInstance] p2Deck] serialize] forKey:@"p2Deck"];
     [currentMatch setObject:[[[PlayerManager sharedInstance] p1Hand] serialize] forKey:@"p1Hand"];
     [currentMatch setObject:[[[PlayerManager sharedInstance] p2Hand] serialize] forKey:@"p2Hand"];    
     
+    
+    
     NSMutableData *data = [[NSMutableData alloc] init];
     NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
     [archiver encodeObject:currentMatch forKey:@"Some Key Value"];
     [archiver finishEncoding];
-
+    
     return data;
 }
 
@@ -257,6 +293,9 @@ static MatchManager *sharedInstance = nil;
     [currentMatch setObject:[[[PlayerManager sharedInstance] p2Hand] serialize] forKey:@"p2Hand"];
     [currentMatch setObject:[[[BoardManager sharedInstance] board] getTokensForPlayer:1] forKey:@"p1Tokens"];
     [currentMatch setObject:[[[BoardManager sharedInstance] board] getTokensForPlayer:-1] forKey:@"p2Tokens"];
+    [currentMatch setObject:[[[BoardManager sharedInstance] board] getCrystalsForPlayer:1] forKey:@"p1Crystals"];
+    [currentMatch setObject:[[[BoardManager sharedInstance] board] getCrystalsForPlayer:-1] forKey:@"p2Crystals"];
+    
     [currentMatch setValue:[[[BoardManager sharedInstance] board] boardName] forKey:@"Board"];
     
     NSMutableData *data = [[NSMutableData alloc] init];

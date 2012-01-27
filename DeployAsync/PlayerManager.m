@@ -52,7 +52,7 @@ static PlayerManager *sharedInstance = nil;
         [p1Deck setDeck:deckData];
         [p2Deck setDeck:deckData];
         
-        for(int i = 1; i < STARTING_CARDS; ++i) {
+        for(int i = 1; i < STARTING_CARDS-1; ++i) {
             Card* p1Card = [p1Deck drawCard];
             if(p1Card) {
                 [p1Hand addCard:p1Card];        

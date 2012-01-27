@@ -15,7 +15,7 @@
 
 @implementation Tile
 
-@synthesize highlighted, occupied, boardPos, occupyingUnit, attackable,manaValue;
+@synthesize highlighted, occupied, boardPos, occupyingUnit, attackable,manaValue, crystal;
 
 - (id)init
 {
@@ -138,6 +138,11 @@
         [[BoardManager sharedInstance] setSelectedUnit:nil];
     }
 }
+
+- (void)checkAttackable:(Unit*)unit {
+    self.attackable = (([self occupied] && [[self occupyingUnit] playerNum] != [unit playerNum]) || ([self crystal] && [[self crystal] playerNum] != [unit playerNum])) && ![unit actionUsed];
+}
+    
 
 
 @end
