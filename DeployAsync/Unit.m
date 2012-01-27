@@ -7,6 +7,7 @@
 //
 
 #import "Unit.h"
+#import "UnitInfo.h"
 #import "BoardManager.h"
 #import "PlayerManager.h"
 #import "MatchManager.h"
@@ -16,6 +17,7 @@
 
 #define kMoveAvail 200
 #define kAttackAvail 300
+#define kInfoTag 400
 
 @implementation Unit
 
@@ -147,9 +149,35 @@
     
     if([[PlayerManager sharedInstance] thisPlayersTurn] && playerNum == [[PlayerManager sharedInstance] currentPlayer] && ![[MatchManager sharedInstance] showingRecap]) {
         [[BoardManager sharedInstance] setSelectedUnit:self];
-        return YES;
     }
-    return NO;
+    
+    [[self parent] reorderChild:self z:999];
+    UnitInfo* info = [[UnitInfo alloc] initWithFile:@"UnitInfo.png"];
+    [info setupWithUnit:self];
+    
+    float yOffset = 0;
+    float upperEdge = [self parent].contentSize.height - (info.contentSize.height + self.position.y);
+    float lowerEdge = -info.contentSize.height + self.position.y;
+
+    yOffset = upperEdge < 0 ? upperEdge : lowerEdge < 0 ? lowerEdge : 0;
+    
+    if(boardPos.x == 1) {
+        info.position = CGPointMake(info.contentSize.width/2 + self.contentSize.width, -yOffset);
+    }
+    else if(boardPos.x == 2) {
+        if(self.position.y > [self parent].contentSize.height/2) {
+            info.position = CGPointMake(self.contentSize.width/2, -75);
+        }
+        else {
+            info.position = CGPointMake(self.contentSize.width/2, 100);
+        }
+    }
+    else {
+        info.position = CGPointMake(-self.contentSize.width, yOffset);
+    }
+    
+    [self addChild:info z:30 tag:kInfoTag];
+    return YES;
 
 }
 
@@ -162,6 +190,9 @@
 
 - (void)ccTouchEnded:(UITouch *)touch withEvent:(UIEvent *)event {	
     //CGPoint touchPoint = [touch locationInView:[touch view]];
+    [self removeChildByTag:kInfoTag cleanup:YES];
+    [[self parent] reorderChild:self z:50];
+    
 }
 
 - (void)setupFromCardParams:(NSDictionary*)params {

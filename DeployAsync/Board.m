@@ -26,6 +26,7 @@
 #define HEIGHT_SPACING 0
 
 #define CRYSTAL_HP 50
+#define HAND_MAX 6
 
 @implementation Board
 
@@ -329,8 +330,7 @@
             Unit* occupyingUnit = [tile occupyingUnit];
             
             // Only if the tile is occupied and in attackable range
-            if(occupyingUnit) {
-                
+            if(occupyingUnit) {                
                 
                 // Damage enemy unit
                 [occupyingUnit damage:[unit AP]];
@@ -359,12 +359,6 @@
                 
                 // Wipe the board of highlights
                 [self wipeHighlighting];        
-                
-                
-                
-                //            CCSequence* seq = [CCSequence actions:[CCDelayTime actionWithDuration:2.0], [CCCallFunc actionWithTarget:[MatchManager sharedInstance] selector:@selector(popMove:)],nil];
-                //            [self runAction:seq];
-                //            
                 
                 return YES;
             }
@@ -481,7 +475,7 @@
     [unit setActionUsed:[unit playerNum] != [[PlayerManager sharedInstance] currentPlayer]];
     [unit setMoveUsed:[unit playerNum] != [[PlayerManager sharedInstance] currentPlayer]];
     
-    [self addChild:unit];
+    [self addChild:unit z:10];
 }
 
 - (void)setUnit:(Unit*)unit AtBoardPos:(CGPoint)boardPos {
@@ -547,9 +541,11 @@
         Hand* hand = [[PlayerManager sharedInstance] hand];        
         Deck* deck = [[PlayerManager sharedInstance] deck];
         
+        if([[hand cards] count] < HAND_MAX) {
         Card* card = [deck drawCard];
         if(card) {
             [hand addCard:card];        
+        }
         }
     }
     else {
