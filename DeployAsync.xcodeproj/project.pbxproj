@@ -131,7 +131,6 @@
 		C260E90614CE01930083A27D /* Tile.m in Sources */ = {isa = PBXBuildFile; fileRef = C260E90514CE01930083A27D /* Tile.m */; };
 		C260E90A14CE03C50083A27D /* Board.m in Sources */ = {isa = PBXBuildFile; fileRef = C260E90914CE03C50083A27D /* Board.m */; };
 		C263FE3514CF3C5C00361898 /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C263FE3414CF3C5C00361898 /* GameKit.framework */; };
-		C263FE3914CF452B00361898 /* GCTurnBasedMatchHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C263FE3814CF452B00361898 /* GCTurnBasedMatchHelper.m */; };
 		C263FE3C14CF55EC00361898 /* MainMenuLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = C263FE3B14CF55EC00361898 /* MainMenuLayer.m */; };
 		C263FE3F14CF67D700361898 /* MatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C263FE3E14CF67D700361898 /* MatchManager.m */; };
 		C263FE4114CF847000361898 /* End Turn Disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = C263FE4014CF847000361898 /* End Turn Disabled.png */; };
@@ -139,6 +138,7 @@
 		C263FE4514CF9F7400361898 /* End Game.png in Resources */ = {isa = PBXBuildFile; fileRef = C263FE4414CF9F7400361898 /* End Game.png */; };
 		C263FE4714CFE31E00361898 /* Reload.png in Resources */ = {isa = PBXBuildFile; fileRef = C263FE4614CFE31D00361898 /* Reload.png */; };
 		C26FEAB714D3380B00625700 /* UnitInfo.png in Resources */ = {isa = PBXBuildFile; fileRef = C26FEAB614D3380B00625700 /* UnitInfo.png */; };
+		C2795C0E14D51A61006D5422 /* GCTurnBasedMatchHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C2795C0D14D51A61006D5422 /* GCTurnBasedMatchHelper.m */; };
 		C283EF7B14CE5D6400F3DBE6 /* PlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C283EF7A14CE5D6400F3DBE6 /* PlayerManager.m */; };
 		C283EF7E14CE5EF200F3DBE6 /* End Turn.png in Resources */ = {isa = PBXBuildFile; fileRef = C283EF7D14CE5EF200F3DBE6 /* End Turn.png */; };
 		C283EF8114CE64BF00F3DBE6 /* AttackAvail.png in Resources */ = {isa = PBXBuildFile; fileRef = C283EF7F14CE64BF00F3DBE6 /* AttackAvail.png */; };
@@ -403,8 +403,6 @@
 		C260E90814CE03C50083A27D /* Board.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Board.h; sourceTree = "<group>"; };
 		C260E90914CE03C50083A27D /* Board.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Board.m; sourceTree = "<group>"; };
 		C263FE3414CF3C5C00361898 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
-		C263FE3714CF452B00361898 /* GCTurnBasedMatchHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCTurnBasedMatchHelper.h; path = "../../../Desktop/SpinningYarn Finished/GCTurnBasedMatchHelper.h"; sourceTree = "<group>"; };
-		C263FE3814CF452B00361898 /* GCTurnBasedMatchHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCTurnBasedMatchHelper.m; path = "../../../Desktop/SpinningYarn Finished/GCTurnBasedMatchHelper.m"; sourceTree = "<group>"; };
 		C263FE3A14CF55EB00361898 /* MainMenuLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainMenuLayer.h; sourceTree = "<group>"; };
 		C263FE3B14CF55EC00361898 /* MainMenuLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainMenuLayer.m; sourceTree = "<group>"; };
 		C263FE3D14CF67D700361898 /* MatchManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatchManager.h; sourceTree = "<group>"; };
@@ -414,6 +412,8 @@
 		C263FE4414CF9F7400361898 /* End Game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "End Game.png"; sourceTree = "<group>"; };
 		C263FE4614CFE31D00361898 /* Reload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Reload.png; sourceTree = "<group>"; };
 		C26FEAB614D3380B00625700 /* UnitInfo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = UnitInfo.png; sourceTree = "<group>"; };
+		C2795C0C14D51A61006D5422 /* GCTurnBasedMatchHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCTurnBasedMatchHelper.h; sourceTree = "<group>"; };
+		C2795C0D14D51A61006D5422 /* GCTurnBasedMatchHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCTurnBasedMatchHelper.m; sourceTree = "<group>"; };
 		C283EF7914CE5D6400F3DBE6 /* PlayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerManager.h; sourceTree = "<group>"; };
 		C283EF7A14CE5D6400F3DBE6 /* PlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerManager.m; sourceTree = "<group>"; };
 		C283EF7D14CE5EF200F3DBE6 /* End Turn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "End Turn.png"; sourceTree = "<group>"; };
@@ -475,8 +475,8 @@
 		C233931014CE50F0002CA946 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
-				C263FE3714CF452B00361898 /* GCTurnBasedMatchHelper.h */,
-				C263FE3814CF452B00361898 /* GCTurnBasedMatchHelper.m */,
+				C2795C0C14D51A61006D5422 /* GCTurnBasedMatchHelper.h */,
+				C2795C0D14D51A61006D5422 /* GCTurnBasedMatchHelper.m */,
 				C233931114CE5100002CA946 /* BoardManager.h */,
 				C233931214CE5100002CA946 /* BoardManager.m */,
 				C283EF7914CE5D6400F3DBE6 /* PlayerManager.h */,
@@ -1049,12 +1049,12 @@
 				C283EF8814CE6D1D00F3DBE6 /* Card.m in Sources */,
 				C2CC80FE14CE86970071EA79 /* Hand.m in Sources */,
 				C2D5E4BA14CE96D8005FE64F /* Deck.m in Sources */,
-				C263FE3914CF452B00361898 /* GCTurnBasedMatchHelper.m in Sources */,
 				C263FE3C14CF55EC00361898 /* MainMenuLayer.m in Sources */,
 				C263FE3F14CF67D700361898 /* MatchManager.m in Sources */,
 				C2EEC5C414D1081C0038C5F7 /* RecapLabel.m in Sources */,
 				C290C2D014D21012004F6D6A /* Crystal.m in Sources */,
 				C290C2D614D28E7E004F6D6A /* UnitInfo.m in Sources */,
+				C2795C0E14D51A61006D5422 /* GCTurnBasedMatchHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
